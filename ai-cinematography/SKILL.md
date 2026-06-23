@@ -352,6 +352,43 @@ Photorealistic live-action. Medium shot. A 28-year-old Chinese woman, oval face,
 不是"街头" → 春风街夜市，炭火红光，暖黄灯泡串，红蓝塑料凳，湿漉漉的柏油路面倒映霓虹
 ```
 
+**场景必须写材质老化痕迹**。规则：场景中出现 ≥1 个物品，该物品必须有"使用证据"（磨损/污渍/老化）。全新物品 = 假。缺少老化细节 = 模型感。
+
+#### 工业级场景道具质感词库（电影美术部门蒸馏）
+
+> 来源：FilmDaft Set Dressing指南 + 80+术语Art Department Glossary + FilmFarm Distressing技法
+> 文件：`references/sources/production-design-glossary.md`
+
+**道具三级分类**：手持道具(Hand Props) → 场景道具(Set Props) → 陈设道具(Smalls)。越靠近镜头的物品描述越细。
+
+**6类材质老化速查**：
+
+| 材质 | 必查老化类型 | Prompt注入示例 |
+|------|------------|--------------|
+| 金属 | 锈蚀/刮擦/指纹 | `rusted iron with orange-brown oxidation at edges, fingerprint smudges on polished surface` |
+| 木材 | 开裂/碰撞/水渍 | `worn mahogany desk, water ring stains on surface, dented corners from years of use` |
+| 皮革 | 裂纹/磨损/褪色 | `cracked leather armchair, sun-faded on window side, deep creases at flex points` |
+| 布料 | 起球/磨破/褪色 | `frayed cuffs on cotton shirt, threadbare at elbows, sun-bleached color gradient` |
+| 玻璃 | 冷凝水/指纹/缺口 | `condensation droplets on cold glass, greasy fingerprints on rim, chipped edge` |
+| 纸张 | 泛黄/折痕/卷边 | `yellowed paper with age-toned edges, dog-eared corners, flattened fold marks` |
+
+**Set Dressing四层构建法**（从大到小层层叠加）：
+```
+第1层 大型家具 → 建立空间功能和时代
+第2层 中型陈设 → 帷幔/灯具/地毯
+第3层 小型物品 → 书籍/餐具/个人物品
+第4层 表面细化 → 灰尘/划痕/指纹/水渍（最少1处）
+```
+
+**关键Prompt术语**：
+- `lived-in` = 有人住过的痕迹感
+- `weathered` = 风吹日晒自然老化
+- `patina` = 长期使用形成的天然老化层
+- `grimy` = 油污积垢（厨房/机械场景）
+- `hero prop` = 特写级道具，写3倍细节
+
+**场景可信度自检**：每条Prompt写完问自己——所有物品有使用痕迹吗？光线有来源吗？人物和环境有互动证据吗？
+
 #### 风格参数（平台专属）
 
 | 平台 | 关键参数 |
