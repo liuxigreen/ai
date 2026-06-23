@@ -274,6 +274,49 @@ weathered textures, abandoned world, the last trace of humanity
 人物基础信息 + 五官细节 + 穿搭妆容 + 动作神态 + 场景环境 + 风格参数 + 摄影参数
 ```
 
+### 公式 ↔ Schema 映射（工业级：awesome-gpt-image-2 原子化驱动）
+
+> 每条真人写实Prompt必须完整覆盖Schema的8个字段。以下是各字段在真人写实模式下的"工业级填充标准"。
+
+| Schema模块 | 真人写实填充标准 | 敷衍 vs 工业级 |
+|-----------|---------------|---------------|
+| **主体** | `人物基础+五官细节+穿搭妆容`：年龄/脸型/眼型/鼻型/唇型/肤色/特征点/发型/服装材质 | ❌ "一个年轻女性" → ✅ "28岁中国女性，偏长鹅蛋脸，单眼皮丹凤眼，左耳垂小黑痣，白色棉麻衬衫领口微皱" |
+| **光照** | `光源+方向+色温+强度+硬/柔`：必须指定一个主光源和一个辅光源 | ❌ "办公室灯光" → ✅ "左侧落地窗上午10点自然光为主光源，右侧显示器冷白屏为补光，柔光，色温5500K" |
+| **构图** | `景别+角度+人物位置+视觉引导线`：标出景别和人物在画面中的比例 | ❌ "中景" → ✅ "中景，肩部以上，人物偏右占画面60%，左侧负空间留白，门框作为前景框" |
+| **空间** | `环境+材质+关键道具+氛围`：环境材料要写材质老化痕迹，关键道具要写具体 | ❌ "办公室" → ✅ "高层写字楼，白墙+浅木桌面，桌上半杯冷咖啡，保温杯壁有冷凝水珠，百叶窗投下条纹阴影" |
+| **风格** | `色调+质感+摄影参数`：用相机参数替代风格形容词 | ❌ "电影感" → ✅ "Shot on ARRI Alexa, 50mm f/2.0, Kodak Portra 400 color science, 35mm film grain, natural color grade" |
+| **情绪** | `1-3个情绪关键词`：必须有一个"身体反应"来描述情绪 | ❌ "孤独" → ✅ "疲惫、压抑——肩膀微垂，眼神停留在手机屏幕上的时间超过10秒" |
+| **细节** | `1个隐藏叙事信息`：观众第一遍不会注意，第二遍恍然大悟 | ❌ 无 → ✅ "桌面角落有一张被揉皱后又展平的调薪申请单，日期是三个月前" |
+| **联动** | `人物一致性注入 + 色调继承 + 动作接续`：每条Prompt末尾强制追加 | ❌ 无 → ✅ "Character ref: 林雪——鹅蛋脸/杏仁眼/黑框眼镜/白衬衫/左手红绳。同镜1色调，承接撕工牌后起身的动作" |
+
+### 完整示例：一条Prompt如何覆盖8个Schema字段
+
+```
+主体: 28岁中国女性林雪，偏长鹅蛋脸，单眼皮丹凤眼，肤色冷白偏黄，黑色中长发低马尾，白色棉麻衬衫领口微皱，黑框钛合金眼镜，左手红绳手链。
+
+光照: 左侧落地窗上午10点自然光为主光源(柔光，色温5500K)，右侧显示器冷白屏为补光，百叶窗投下条纹阴影在桌面。
+
+构图: 中景，肩部以上，人物偏右占画面60%，门框作为前景框，左侧负空间留白。
+
+空间: 高层写字楼，白墙+浅木桌面，桌上半杯冷咖啡(马克杯壁冷凝水珠)，揉皱又展平的调薪申请单(日期三个月前)，百叶窗条纹阴影。
+
+风格: Shot on ARRI Alexa, 50mm f/2.0, Kodak Portra 400 color science, 35mm film grain, natural color grade, photorealistic.
+
+情绪: 疲惫、压抑——肩膀微垂，眼神停留在手机屏幕时间超过10秒。
+
+细节: 桌面角落的调薪申请单日期是三个月前（暗示：她的升职已被压了三个月，随时可能爆发）。
+
+联动: Character ref: 林雪——鹅蛋脸/杏仁眼/黑框眼镜/白衬衫/左手红绳。继承镜1蓝紫冷调。承接看手机后撕工牌的动作。
+```
+
+→ 合并为一条可用的完整Prompt（英文为主，中文/特殊词保留）:
+
+```
+Photorealistic live-action. Medium shot. A 28-year-old Chinese woman, oval face, monolid phoenix eyes, pale warm-toned skin, black hair in low ponytail, white cotton-linen shirt with slightly wrinkled collar, black titanium-framed glasses, red string bracelet on left wrist. Sitting at desk in high-rise office. Left side floor-to-ceiling window, 10AM natural daylight as key light, soft, 5500K. Right side monitor cool screen as fill light. Venetian blind shadows striping across desk. White wall, light wood desk surface. Half-empty cold coffee in ceramic mug with condensation droplets. A crumpled-then-flattened salary review request on desk corner, date three months ago. Shoulders slightly drooped, eyes fixed on phone screen longer than natural. Off-center composition, figure positioned right 60%, door frame as foreground element, negative space left. Shot on ARRI Alexa, 50mm f/2.0, Kodak Portra 400 color science, 35mm film grain, natural color grade. Vertical 9:16. --no illustration, painting, cartoon, CGI, 3D render, plastic skin, airbrushed
+```
+
+**关键规则**：Schema的8个字段必须在Prompt中全部出现。缺任何一个，画面质量就降一档。这是工业级和业余级的唯一区别。
+
 ### 各模块速查表
 
 #### 人物基础（必须具体到身份锚点）
