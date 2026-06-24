@@ -61,6 +61,7 @@ date: 2026-06-23
     "title": "用户输入关键词的提炼",
     "source": "热榜来源或文化现象来源",
     "lifecycle": "上升期/爆发期",
+    "search_results": "🔴 必填。WebSearch 搜索到的关键发现摘要（用户是谁、发生了什么、观众怎么反应、有什么争议）。这是 Stage 2 编剧的唯一信息源。不可为空。",
     "emotion_engine": { "core": "核心情绪", "curve": "情绪曲线" },
     "four_d": { "emotion": "...", "conflict": "...", "persona": "...", "framework": "..." },
     "adaptation": { "genre": "匹配的题材类型", "diff_angle": "与已有爆款的差异化切入点" }
@@ -76,8 +77,9 @@ date: 2026-06-23
 
 **指令**：
 - Read `.workbuddy/skills/short-drama-screenwriting/SKILL.md`
-- 读取 Stage 1 的 hotspot.adaptation.genre 和 emotion_engine
+- 🚨 **必须先读完 Stage 1 的全部产出**：search_results 告诉你这个热点是什么、观众怎么反应；emotion_engine 告诉你核心情绪；adaptation 告诉你题材和增量点。**不读完不开始写。**
 - 用四阶段流：题材确认→结构搭建→写作执行→输出
+- 剧本**必须基于 Stage 1 提供的信息**。Stage 1 说这是古风反串，就写古风反串。不可写成不相干的题材。
 - 必须输出**完整剧本**，不是大纲摘要
 
 **必须输出的字段**：
