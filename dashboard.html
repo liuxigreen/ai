@@ -230,7 +230,7 @@ canvas#bg { position: fixed; top: 0; left: 0; z-index: 0; pointer-events: none; 
     <div class="row">
       <div class="field" style="flex:3">
         <label>🎯 你的创意</label>
-        <input id="ideaInput" type="text" placeholder="例如：加班改17版方案，功劳被关系户抢了…">
+        <input id="ideaInput" type="text" placeholder="例如：筷子兄弟逍遥仙" value="筷子兄弟逍遥仙">
       </div>
       <div class="field" style="flex:1.5">
         <label>🎬 题材</label>
@@ -289,11 +289,11 @@ canvas#bg { position: fixed; top: 0; left: 0; z-index: 0; pointer-events: none; 
       </div>
     </div>
     <div class="output-card">
-      <div class="card-header"><span class="dot done"></span>全链路数据（pipeline.json）</div>
+      <div class="card-header"><span class="dot done"></span>可用操作</div>
       <div class="card-body" id="jsonOutput">
         <div class="empty-state">
-          <div class="icon">📦</div>
-          <div>项目数据将在此展示</div>
+          <div class="icon">📋</div>
+          <div>每阶段完成后，这里显示可执行的下一步操作</div>
         </div>
       </div>
     </div>
@@ -451,83 +451,63 @@ async function startPipeline() {
 }
 
 function generateFakeOutput(stage, index, idea) {
+  const isKuaizi = idea.includes('筷子兄弟') || idea.includes('逍遥仙') || idea.includes('肖央') || idea.includes('王太利');
+  
+  // 筷子兄弟逍遥仙 真实数据
+  if (isKuaizi || index === 0) {
+    const kuaizi = {
+      hotspot: {
+        title: "筷子兄弟《逍遥仙》AI生成MV",
+        source: "抖音/B站/微博 热榜 2026年6月",
+        search_results: "6月15日发布，出道二十周年合体。肖央变外卖员抢婚王太利反串百花仙子。AI生成画面魔性辣眼，与好听的歌形成强烈反差。网友：我手机脏了！",
+        emotion: { core: "猎奇/魔性上头/反差萌", curve: "好奇→辣眼→破防大笑→鼻酸感动" },
+        framework: "古今双线+AI荒诞+反串笑点=膈应但上头",
+        genre: "古风反串搞笑",
+        diff_angle: "原4分钟MV→1分钟聚焦抢婚瞬间。外卖员骑电动车闯仙界，司仪当场搜辞职模板。"
+      },
+      script: {
+        format: "12镜短片(1分钟)",
+        genre: "古风反串搞笑",
+        shots: [
+          ["大远景","仙山云海。金色宫殿。仙鹤飞过。"],
+          ["中景","百花仙子闺房。王太利(国字脸/小眼/凤冠霞帔/烟熏妆)掀盖头偷看。"],
+          ["中景","山下。肖央(圆脸/单眼皮/黑框眼镜/黄美团外卖服)停车看请帖——百花仙子。拧油门。"],
+          ["远景","电动车冲上云端。身后尾气。天马列队。万丈深渊。"],
+          ["中景","大殿。司仪：新郎·东海龙王三太子驾到——龙太子踩祥云落地，金光闪耀。"],
+          ["近景","司仪：还有一位——肖央。黄外卖服。拎保温箱。保温箱美团标志。司仪嘴张开三秒没合。"],
+          ["中景⭐","肖央打开保温箱：炒饭。递筷子：趁热。王太利掀盖头——浓妆斑驳假睫毛掉了。跨上电动车后座。"],
+          ["特写","王太利抱肖央的腰。霞帔飘成红色尾迹。嘴型：驾。"],
+          ["远景","电动车穿破祥云。保温箱美团标志像月亮。"],
+          ["近景","司仪站空典礼台。龙太子：这百花仙子是不是有点秃？小仙：好像是男的。"],
+          ["大特写","司仪掏手机搜：辞职报告 仙界HR模板。结果：花果山孙总急聘送外卖。八千加提成。"],
+          ["远景","电动车消失云海。字幕：逍遥不是飞得多高。是有人陪你吃冷了还热的炒饭。筷子兄弟二十周年。"]
+        ]
+      },
+      cinema: {
+        mode: "真人写实（默认）",
+        chars: [{
+          name: "肖央", face: "圆偏方脸/下巴圆钝/单眼皮小眼/眼距偏宽/鼻不高鼻头圆/嘴唇偏厚笑露牙龈/偏白皮肤",
+          feature: "黑框眼镜(镜片划痕/左镜腿汗渍腐蚀)/左食指螺丝刀旧疤/172cm中等偏壮含胸",
+          costume: "黄美团外卖服(拉链头回形针代替/右袖机油渍)/深蓝运动鞋头磨损露灰底"
+        },{
+          name: "王太利", face: "偏长国字脸/下颌宽/单眼皮更小眼/鼻梁低鼻头大/嘴唇薄地包天/小麦黑肤/脸颊红血丝/鱼尾纹深/川字纹",
+          feature: "177cm瘦长/男装白汗衫+黑短裤毛边+人字拖右脚磨平+叼烟+脖白毛巾+老式银戒指",
+          costume_female: "凤冠霞帔：浓艳烟熏妆+粉底白三色号+腮红不对称+假睫毛左3cm右2cm+口红涂出嘴角3mm+红盖头静电可见"
+        }],
+        sample_prompt: "Photorealistic live-action, medium shot. Wedding altar. 肖央(round face, small monolid eyes, scratched glasses, yellow Meituan uniform) opens delivery box, fried rice steaming. Hands disposable chopsticks to 王太利(long square face, tiny eyes, red bridal robe, smeared makeup, lipstick beyond lip line) lifting veil — one false eyelash dangling. Shot on ARRI Alexa 50mm f/2.0. --no CGI illustration"
+      },
+      image: { tool: "即梦 S2.0 Pro", seed: "666666", steps: 30, char: "双角色定妆照+逐镜参考图+200词角色卡注入" },
+      video: { tool: "可灵 3.0", motion: "低档。90%固定。s04 横移微抖/s09 极慢拉远/s12 渐远" },
+      editing: { rhythm: "0-8s大婚→8-20s外卖登场→20-35s抢婚→35-50s司仪辞职→50-60s二十周年字幕" },
+      sound: { bgm: "古风恢弘→s06卡祖笛滑稽→s07小苹果变奏", sfx: "引擎/掰筷子/打字/笑声" },
+      publish: { title: "他穿着美团外卖服，抢了百花仙子的婚。司仪当场打开仙界HR系统搜辞职模板。", tags: "#筷子兄弟 #逍遥仙二创 #AI创作 #搞笑", time: "18:00" }
+    };
+    return kuaizi[stage.id] || { status: "done" };
+  }
+
+  // 通用数据
   const genre = document.getElementById('genreSelect').value === 'auto' ? '都市逆袭' : document.getElementById('genreSelect').value;
-  const style = document.getElementById('styleSelect').value;
-  const dur = document.getElementById('durationSelect').value;
-
-  const outputs = {
-    hotspot: {
-      emotion_engine: { core: "愤怒（被背叛）", curve: "压抑 → 爆发 → 逆袭爽感" },
-      four_d: { emotion: "愤怒→委屈→决断", conflict: "能干员工 vs 抢功关系户", persona: "女主：被低估的职场女性" },
-      adaptation: { genre: genre, diff_angle: "不报复，只选择——她带着客户一起走" }
-    },
-    script: {
-      format: dur === '1min' ? '15镜短片' : dur === '2min' ? '20镜短片' : '30镜短片',
-      episode: 1, scenes: 3, characters: ["女主", "老板", "关系户", "猎头/新机遇"],
-      key_beats: ["深夜改方案", "方案被冒名", "撕工牌", "猎头短信", "新公司开价80万"]
-    },
-    cinema: {
-      director_mode: style === 'auto' ? (genre === '科幻末世' ? 'apocalyptic' : 'wong') : style,
-      total_shots: dur === '1min' ? 15 : dur === '2min' ? 20 : 30,
-      char_card: "鹅蛋脸，丹凤眼，冷白皮，28岁女，黑色西装裙+白衬衫",
-      sample_prompt: "Slow dolly in toward a young woman at office desk 2AM. Her face lit by monitor glow, expression shifting from tired to shocked. 35mm film grain, soft focus."
-    },
-    image: {
-      toolchain: "平民链路 — 即梦 S2.0 Pro",
-      strategy: "CHAR资产库 → 3S抽卡流水线",
-      per_shot: { seed: "固定种子123456", model: "即梦S2.0", steps: 30 },
-      consistency: "角色卡片200词级别 + 定妆照参考图"
-    },
-    video: {
-      tool: "可灵 3.0",
-      camera_moves: ["慢推(low push)", "固定→微摇", "环绕揭示"],
-      per_clip: { motion_strength: "中低档", duration: "4-6秒", frame_control: "首尾帧链" },
-      chain_continuity: "Shot1最后一帧 = Shot2首帧 → 全链锁定"
-    },
-    editing: {
-      rhythm_grid: "3s钩子 → 5s惊喜 → 15s反转 → 40s高潮",
-      transitions: ["硬切(80%)", "叠化(15%)", "光闪转场(5%)"],
-      subtitles: "白字+黑色粗描边，竖屏底部安全区，每行8-10字",
-      export: "抖音 1080×1920 30fps 10-15Mbps H.264"
-    },
-    sound: {
-      bgm: { emotion: "悬疑→燃", keywords: ["低沉钢琴(悬念段)", "史诗管弦(逆袭段)"] },
-      sfx: ["键盘敲击声(深夜加班)", "手机振动(猎头短信)", "心跳加速(方案被冒名)"],
-      voiceover: { tool: "剪映文本朗读", timbre: "情感女声", speed: 1.0 },
-      volume: "人声-6dB / 音效-12dB / BGM-22dB"
-    },
-    publish: {
-      title: { primary: `她改${Math.floor(Math.random()*5+15)}版方案后，老板把功劳给了关系户…`, ab_test: ["绝了！撕碎工牌后，猎头开价80万", "第" + Math.floor(Math.random()*5+15) + "版方案被冒名，她做了所有人不敢做的事"] },
-      cover: { frame: "撕工牌的瞬间特写", text: "不干了！", style: "白字黑色粗描边" },
-      tags: ["#短剧", "#职场逆袭", "#反转", "#真实故事"],
-      publish_time: "18:00",
-      copy: { line1: "改方案改到凌晨，功劳全是别人的", line2: "@你的打工人闺蜜来看逆袭", line3: "如果是你，你会怎么做？评论区见" }
-    }
-  };
-  return outputs[stage.id] || { status: "done" };
-}
-
-function updateUI() {
-  stages.forEach((s, i) => {
-    const node = document.getElementById('node' + s.id);
-    const label = document.getElementById('label' + s.id);
-    const st = pipelineState.stages[s.id]?.status;
-    node.className = 'node';
-    label.className = 'label';
-    if (st === 'done') { node.classList.add('done'); label.classList.add('done'); }
-    if (st === 'running') { node.classList.add('running'); label.classList.add('running'); }
-
-    if (i > 0) {
-      const line = document.getElementById('line' + i);
-      const prevSt = pipelineState.stages[stages[i-1].id]?.status;
-      line.className = 'line';
-      if (prevSt === 'done' && st === 'running') line.classList.add('running');
-      else if (prevSt === 'done') line.classList.add('done');
-    }
-  });
-
-  const doneCount = stages.filter(s => pipelineState.stages[s.id]?.status === 'done').length;
-  document.getElementById('progressFill').style.width = ((doneCount / stages.length) * 100) + '%';
+  return { genre: genre, note: "请使用「筷子兄弟逍遥仙」等具体关键词获得真实案例数据" };
 }
 
 function updateCurrentOutput(stage, status, output, allDone) {
@@ -536,32 +516,84 @@ function updateCurrentOutput(stage, status, output, allDone) {
   const container = document.getElementById('currentOutput');
 
   if (allDone) {
-    container.innerHTML = `
-      <div style="text-align:center;padding:20px;">
-        <div style="font-size:3em;">🏆</div>
-        <h3 style="color:#4ade80;margin:12px 0;">全链路完成！</h3>
-        <p style="color:#888;">8站专家全部就绪，项目已生成</p>
-        <p style="color:#666;font-size:0.82em;margin-top:8px;">项目ID: ${pipelineState.project_id}</p>
-      </div>`;
+    container.innerHTML = `<div style="text-align:center;padding:20px;">
+      <div style="font-size:3em;">🏆</div><h3 style="color:#4ade80;margin:12px 0;">全链路完成！</h3>
+      <p style="color:#888;">12镜短剧就绪，查看下方【STEP文件】获取分步操作指南</p>
+      <p style="color:#666;font-size:0.82em;margin-top:8px;">项目ID: ${pipelineState.project_id}</p></div>`;
     return;
   }
-
   if (!stage || !output) return;
 
   const idx = stages.indexOf(stage) + 1;
   let html = `<h3>[Stage ${idx}/8] ${stage.emoji} ${stage.label}</h3>`;
-  html += `<pre>${JSON.stringify(output, null, 2)}</pre>`;
-  if (status === 'running') {
-    html += `<div style="margin-top:8px;color:#a855f7;font-size:0.82em;">⏳ 执行中...</div>`;
+  const s = stage.id;
+
+  // 格式化每站内容
+  if (s === 'hotspot' && output.title) {
+    html += `<div class="tag">${output.genre}</div><br><br>`;
+    html += `<strong>📰 背景</strong><p style="color:#aaa;margin:4px 0;">${output.search_results}</p>`;
+    html += `<strong>🎯 情绪</strong><p style="color:#a5b4fc;">${output.emotion.core} → ${output.emotion.curve}</p>`;
+    html += `<strong>💡 增量</strong><p style="color:#aaa;">${output.diff_angle}</p>`;
+  } else if (s === 'script' && output.shots) {
+    html += `<strong>${output.format} · ${output.genre}</strong><br><br>`;
+    output.shots.forEach((sh,i) => {
+      html += `<div style="margin:6px 0;padding:6px 8px;background:rgba(255,255,255,0.03);border-radius:6px;">
+        <span style="color:#7c3aed;font-size:0.75em;">镜${i+1}${sh[0].includes('⭐')?' ⭐核心':''}</span>
+        <span style="color:#888;font-size:0.75em;margin-left:8px;">${sh[0].replace('⭐','')}</span><br>
+        <span style="color:#bbb;">${sh[1]}</span></div>`;
+    });
+  } else if (s === 'cinema' && output.mode) {
+    html += `<div class="tag">${output.mode}</div><br><br>`;
+    output.chars.forEach(c => {
+      html += `<strong>${c.name}</strong><br><span style="color:#aaa;font-size:0.82em;">${c.face}</span><br>
+        <span style="color:#888;font-size:0.78em;">${c.feature}</span><br>
+        <span style="color:#666;font-size:0.78em;">${c.costume || ''}${c.costume_female ? ' · 女装:'+c.costume_female : ''}</span><br><br>`;
+    });
+    html += `<strong>核心Prompt预览</strong><br><pre style="font-size:0.7em;max-height:120px;">${output.sample_prompt.substring(0,300)}...</pre>`;
+  } else if (s === 'image') {
+    html += `<strong>${output.tool}</strong> · Seed: ${output.seed} · ${output.steps} steps<br><br>
+      <span style="color:#a5b4fc;">${output.char}</span><br>
+      <span style="color:#888;font-size:0.82em;">生成前必须先出角色定妆照做参考图</span>`;
+  } else if (s === 'video') {
+    html += `<strong>${output.tool}</strong> · ${output.motion}<br><br>
+      <span style="color:#888;font-size:0.82em;">每镜出3段视频，选最好的1段。喜剧靠表演推动，不要炫运镜。</span>`;
+  } else if (s === 'editing') {
+    html += `<strong>时间线</strong><p style="color:#a5b4fc;">${output.rhythm}</p>`;
+  } else if (s === 'sound') {
+    html += `<strong>BGM</strong><p style="color:#a5b4fc;">${output.bgm}</p>
+      <strong>音效</strong><p style="color:#aaa;">${output.sfx}</p>`;
+  } else if (s === 'publish') {
+    html += `<strong>标题</strong><p style="color:#a5b4fc;margin:4px 0;">${output.title}</p>
+      <strong>标签</strong><br>${(output.tags||[]).map(t=>`<span class="tag">${t}</span>`).join(' ')}
+      <br><br><span style="color:#888;">发布时间：${output.time}</span>`;
   } else {
-    html += `<div style="margin-top:8px;color:#4ade80;font-size:0.82em;">✅ 完成</div>`;
+    html += `<pre>${JSON.stringify(output, null, 2)}</pre>`;
   }
+
+  if (status === 'running') html += `<div style="margin-top:8px;color:#a855f7;font-size:0.82em;">⏳ 执行中...</div>`;
+  else html += `<div style="margin-top:8px;color:#4ade80;font-size:0.82em;">✅ 完成</div>`;
   container.innerHTML = html;
 }
 
 function updateJsonOutput() {
   const container = document.getElementById('jsonOutput');
-  container.innerHTML = `<pre>${JSON.stringify(pipelineState, null, 2)}</pre>`;
+  const doneCount = stages.filter(s => pipelineState.stages[s.id]?.status === 'done').length;
+  if (doneCount >= 8) {
+    container.innerHTML = `<h3 style="color:#4ade80;">✅ 全链路完成</h3>
+      <p style="color:#aaa;font-size:0.85em;">以下步骤可逐个执行：</p>
+      <div style="margin:8px 0;padding:8px;background:rgba(255,255,255,0.03);border-radius:6px;">
+        <b>1. 角色定妆照</b><br><span style="color:#888;">📋 打开 <code>steps/03-角色卡.md</code> → 3条Prompt贴即梦 → 出图</span></div>
+      <div style="margin:8px 0;padding:8px;background:rgba(255,255,255,0.03);border-radius:6px;">
+        <b>2. 12镜分镜图</b><br><span style="color:#888;">📋 打开 <code>steps/04-画面指令.md</code> → 逐条贴即梦</span></div>
+      <div style="margin:8px 0;padding:8px;background:rgba(255,255,255,0.03);border-radius:6px;">
+        <b>3. 视频片段</b><br><span style="color:#888;">📋 打开 <code>steps/05-生视频.md</code> → 上传分镜图到可灵</span></div>
+      <div style="margin:8px 0;padding:8px;background:rgba(255,255,255,0.03);border-radius:6px;">
+        <b>4. 剪辑+声音+发布</b><br><span style="color:#888;">📋 steps/06/07/08.md</span></div>`;
+  } else if (doneCount > 0) {
+    container.innerHTML = `<p style="color:#888;">⏳ ${doneCount}/8 阶段完成</p>`;
+  } else {
+    container.innerHTML = `<div class="empty-state"><div class="icon">📋</div><div>启动后这里显示分步操作指南</div></div>`;
+  }
 }
 
 function sleep(ms) {
