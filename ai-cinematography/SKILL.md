@@ -290,7 +290,38 @@ weathered textures, abandoned world, the last trace of humanity
 | **细节** | `1个隐藏叙事信息`：观众第一遍不会注意，第二遍恍然大悟 | ❌ 无 → ✅ "桌面角落有一张被揉皱后又展平的调薪申请单，日期是三个月前" |
 | **联动** | `人物一致性注入 + 色调继承 + 动作接续`：每条Prompt末尾强制追加 | ❌ 无 → ✅ "Character ref: 林雪——鹅蛋脸/杏仁眼/黑框眼镜/白衬衫/左手红绳。同镜1色调，承接撕工牌后起身的动作" |
 
-### 完整示例：一条Prompt如何覆盖8个Schema字段
+### 角色面部锚点搜索法（真人明星参照，非直接使用）
+
+> 🚨 AI 工具不能直接使用真人姓名生成面部。但可以搜索真人面部特征作为"描述级锚点"。
+
+当用户指定某种风格/类型的人物时（如"逍遥仙需要肖央那种憨厚脸和王太利那种长脸"），使用以下方法：
+
+**步骤 1：搜索真人面部特征**
+```
+WebSearch：「[艺人名] 脸型 五官 长相 外貌特征」
+→ 提取脸型/眼型/鼻型/唇型/肤色/标志特征的文字描述
+→ 不提取图片URL（AI工具不走图床）
+```
+
+**步骤 2：转写为 Prompt 安全描述（以筷子兄弟为例）**
+
+| 特征 | 肖央 | 王太利 |
+|------|------|--------|
+| 脸型 | 圆偏方脸，下巴圆钝 | 偏长国字脸，下颌宽 |
+| 眼睛 | 单眼皮小眼睛，眼距偏宽，眼神温和带憨 | 单眼皮更小眼睛，眼裂更短 |
+| 鼻 | 鼻梁不高，鼻头圆 | 鼻梁低，鼻头大 |
+| 唇 | 嘴唇偏厚，笑起来露牙龈 | 嘴唇薄，轻微地包天 |
+| 肤色 | 偏白偏暖 | 小麦色偏黑 |
+| 标志 | 常戴黑框眼镜 | 偏瘦长身材，国字脸辨识度高 |
+| 体型 | 中等偏壮实 | 瘦长，肩不宽 |
+
+**步骤 3：注入 Prompt**
+```
+肖央型角色：round face with soft jaw, small monolid eyes set slightly wide apart, warm gentle expression with slight innocence, thick lips revealing gums when smiling, black-framed glasses, medium build slightly stocky
+王太利型角色：long square face with wide jaw, very small monolid eyes, low flat nose bridge with rounded tip, thin lips with slight underbite, darker wheat skin tone, lean tall build
+```
+
+**规则**：Prompt 中只写面部特征描述，不写「looks like 肖央」。AI 不认识肖央，但认识「圆偏方脸/单眼皮/黑框眼镜」的组合。
 
 ```
 主体: 28岁中国女性林雪，偏长鹅蛋脸，单眼皮丹凤眼，肤色冷白偏黄，黑色中长发低马尾，白色棉麻衬衫领口微皱，黑框钛合金眼镜，左手红绳手链。
