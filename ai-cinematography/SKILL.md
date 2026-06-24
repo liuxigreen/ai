@@ -1,6 +1,6 @@
 ---
 name: ai-cinematography
-version: 1.3.0
+version: 1.4.0
 trigger: 画面指令、生图Prompt、分镜、镜头指令、转成画面、画面描述、生成图片指令、AI生图、文生图Prompt、镜头描述、真人Prompt、写实画面
 description: |
   AI短剧画面指令引擎。融合王家卫情绪视觉语法、韦斯·安德森构图纪律、
@@ -23,11 +23,12 @@ date: 2026-06-23
 
 此 Skill 作为画面指令生成器激活。你的输入来自编剧 Skill 输出的剧本（或用户直接描述的场景），你的输出是每个镜头的结构化 Prompt。
 
-四个导演模式可自由切换：
+五个导演模式可自由切换：
 - **王家卫模式**：情绪优先，色彩即情感，适合情感/暧昧/怀旧/都市题材
 - **韦斯·安德森模式**：纪律优先，规则即美感，适合轻喜剧/童话/风格化题材
 - **末世科幻模式**：质感优先，废墟即叙事，适合科幻/末世/废土/恐怖题材
 - **真人写实模式**：摄影参数驱动，皮肤毛孔级细节，默认真人短剧首选
+- **国漫修仙模式**：UE5实时渲染，物理法术特效，中国山水画构图，适合修仙/玄幻/古风动画
 
 两个生成风格可选：
 - **Photorealistic**（真人版）：使用摄影参数+真人演员描述，生成写实影像
@@ -470,6 +471,92 @@ Vertical 9:16
 [姓名], [年龄]岁[国籍]人, [脸型], [眼型], [鼻型], [唇型], [肤色], [面部特征点], [发型], [体型], [服装]
 ```
 每次不改这些字段，只改动作和场景。
+
+---
+
+---
+
+## 模式五：国漫修仙引擎（《遮天》+《凡人修仙传》+ UE5管线蒸馏）
+
+> 来源：原力动画《遮天》UE5实时渲染揭秘 + 《凡人修仙传》特效体系 + 可灵/即梦漫剧横评
+> 核心原则：**不是日式赛璐珞，不是美式卡通——是中国修仙动画的独特视觉语法。**
+
+### 国漫 vs 其他风格
+
+| 维度 | 日式动漫 | 美式3D | **国漫修仙** |
+|------|---------|--------|------------|
+| 渲染 | 2D赛璐珞 | 风格化PBR | UE5实时渲染：3D写实+东方美学融合 |
+| 特效 | 平面符号 | 好莱坞粒子 | **物理法术**：电弧分叉合物理、毒雾用体积云、剑气轨迹合太极图 |
+| 场景 | 极简 | 宏大偏科幻 | 中国山水画构图+实景级PBR材质 |
+| 角色 | 夸张变形 | 弹性挤压 | 真人动捕+物理布料+10万根曲线毛发 |
+
+### 修仙Prompt结构
+
+```
+[上古/玄幻]场景 + [真人动捕级]角色 + [功法/法宝]特效 + [UE5渲染]质感 + 镜头运动
+```
+
+**渲染锚点词（每条至少含3个）**：
+```
+Unreal Engine 5 cinematic render, real-time global illumination, Nanite geometry, volumetric lighting with god rays, subsurface scattering on jade, PBR material, 24fps film look, motion capture animation, cloth physics, 100k strand hair simulation
+```
+
+### 场景词典（中国山水画×UE5）
+
+| 场景 | 视觉特征 | Prompt关键词 |
+|------|---------|-------------|
+| **血色禁地** | 猩红岩壁+枯树+毒雾体积云+丁达尔光 | crimson rock, black skeletal trees, volumetric toxic mist with crepuscular rays, obsidian terrain, blood-red ambient |
+| **虚天殿** | 漂浮宫殿+青铜纹饰+甲骨文符文+太极光晕 | floating palace, bronze vessel inscriptions glowing, oracle bone script wards pulsing, yin-yang mandala in sky, ethereal blue-white |
+| **乱星海** | 水墨漩涡+黑洞中心+墨色晕染+星光碎屑 | ink wash maelstrom, black hole vortex, ink bleeding at edges, scattered starlight, deep indigo and silver palette |
+| **灵墟崖** | 悬空石台+藤蔓荧光+飞瀑入云 | floating stone platforms, hanging vines with glowing spores, waterfall into mist, fluorescent spirit herbs |
+| **大雷音寺** | 巨型佛雕+Nanite高模+金色全局光+莲花光轮 | colossal Buddha statues, Nanite-level detail on weathered stone, golden global illumination, lotus mandala projections |
+
+### 功法特效词典（物理法术）
+
+| 功法 | 视觉效果 | Prompt关键词 |
+|------|---------|-------------|
+| **青竹蜂云剑** | 72道青芒剑气/竹节光纹/竹叶飘散 | 72 cyan sword qi, bamboo-segment energy patterns, emerald leaf particles trailing, cutting through volumetric fog |
+| **雷遁术** | 电弧分叉合物理/空气电离扭曲/焦黑坑洞 | branching electric arcs, ionized air distortion, ground impact charred crater, blue-white plasma glow |
+| **辟邪神雷** | 镜头跟雷光俯冲/慢镜头地面炸开 | lightning bolt from stratosphere, slow-motion ground explosion, expanding shockwave ring |
+| **噬金虫群** | 黑色虫海/每只PBR反光/气流可见 | black insect swarm, each beetle PBR carapace, mandible articulation, air displacement in fog |
+| **青元剑气** | 太极图轨迹/阴阳鱼旋转 | tai chi energy trajectory, rotating yin-yang at impact, cyan-white intertwined stream |
+| **风雷翅** | 青紫粒子羽翼/电光闪烁/残影轨迹 | cyan-purple energy feather wings, luminous particles, electric sparks, afterimage trails |
+
+### 角色标准（国漫级）
+
+**面部**：`realistic east asian features, subsurface scattering on skin, detailed iris with specular, individually modeled eyelashes, micro expression blend shapes, 0.1mm motion capture precision`
+
+**毛发**：`100000 strand simulation, individual curves with physics, anisotropic on black hair, flyaway strands catching rim light, no plastic hair`
+
+**服饰**：`silk brocade with PBR metallic thread, cloth simulation with fold physics, layered robes, jade with subsurface scattering and carved relief`
+
+### 色彩系统
+
+| 情绪 | 主色调 | 辅色 | 场景 |
+|------|--------|------|------|
+| 仙气/神圣 | 青白 #E0F0FF | 金 #FFD700 | 虚天殿/高阶修士 |
+| 危机/禁地 | 暗红 #4A0000 | 紫黑 #1A0020 | 血色禁地/战斗 |
+| 灵力/功法 | 青 #00FFCC | 紫 #8B00FF | 施法/突破 |
+| 魔道/邪气 | 黑红 #0A0005 | 暗绿 #003300 | 魔教/鬼道 |
+
+### 漫剧工具流
+
+| 阶段 | 工具 | 做什么 |
+|------|------|--------|
+| 创意原型 | 即梦 S2.0 | 快速动态分镜/风格探索 |
+| 正片生产 | 可灵 3.0（主力）| 长镜头/复杂运镜/角色表演 |
+| 补充素材 | 即梦（辅助）| 氛围空镜/转场 |
+| 后期 | 剪映/达芬奇+人 | 剪辑叙事/调色/音效 |
+
+### 角色一致性（国漫版）
+
+```
+1. 角色标准三视图（T-Pose正面/侧面/背面）
+2. 5个核心表情集（喜/怒/哀/惊/平）
+3. 角色标准色卡（肤色/发色/瞳色/服饰HEX值）
+4. 每次图生视频严格调用对应参考图
+5. Prompt末尾追加：角色锁定：[角色名]，严格参照参考图五官特征
+```
 
 ---
 
