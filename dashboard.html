@@ -228,9 +228,16 @@ canvas#bg { position: fixed; top: 0; left: 0; z-index: 0; pointer-events: none; 
   <!-- Input -->
   <div class="input-area">
     <div class="row">
-      <div class="field" style="flex:3">
-        <label>🎯 你的创意</label>
-        <input id="ideaInput" type="text" placeholder="例如：筷子兄弟逍遥仙" value="筷子兄弟逍遥仙">
+      <div class="field" style="flex:1.5">
+        <label>📂 历史项目</label>
+        <select id="historySelect" onchange="loadHistory(this.value)" style="width:100%">
+          <option value="kuaizi" selected>🥢 筷子兄弟逍遥仙</option>
+          <option value="zhangxue">🏍️ 张雪机车·逆袭</option>
+          <option value="marriage">💔 八年婚姻谎言</option>
+          <option value="nuwa-test">🔧 逍遥仙·仙界打工人</option>
+        </select>
+      </div>
+      <div class="field" style="flex:2">
       </div>
       <div class="field" style="flex:1.5">
         <label>🎬 题材</label>
@@ -453,63 +460,156 @@ async function startPipeline() {
 }
 
 function generateFakeOutput(stage, index, idea) {
-  const isKuaizi = idea.includes('筷子兄弟') || idea.includes('逍遥仙') || idea.includes('肖央') || idea.includes('王太利');
-  
-  // 筷子兄弟逍遥仙 真实数据
-  if (isKuaizi || index === 0) {
-    const kuaizi = {
-      hotspot: {
-        title: "筷子兄弟《逍遥仙》AI生成MV",
-        source: "抖音/B站/微博 热榜 2026年6月",
-        search_results: "6月15日发布，出道二十周年合体。肖央变外卖员抢婚王太利反串百花仙子。AI生成画面魔性辣眼，与好听的歌形成强烈反差。网友：我手机脏了！",
-        emotion: { core: "猎奇/魔性上头/反差萌", curve: "好奇→辣眼→破防大笑→鼻酸感动" },
-        framework: "古今双线+AI荒诞+反串笑点=膈应但上头",
-        genre: "古风反串搞笑",
-        diff_angle: "原4分钟MV→1分钟聚焦抢婚瞬间。外卖员骑电动车闯仙界，司仪当场搜辞职模板。"
-      },
-      script: {
-        format: "12镜短片(1分钟)",
-        genre: "古风反串搞笑",
-        shots: [
-          ["大远景","仙山云海。金色宫殿。仙鹤飞过。"],
-          ["中景","百花仙子闺房。王太利(国字脸/小眼/凤冠霞帔/烟熏妆)掀盖头偷看。"],
-          ["中景","山下。肖央(圆脸/单眼皮/黑框眼镜/黄美团外卖服)停车看请帖——百花仙子。拧油门。"],
-          ["远景","电动车冲上云端。身后尾气。天马列队。万丈深渊。"],
-          ["中景","大殿。司仪：新郎·东海龙王三太子驾到——龙太子踩祥云落地，金光闪耀。"],
-          ["近景","司仪：还有一位——肖央。黄外卖服。拎保温箱。保温箱美团标志。司仪嘴张开三秒没合。"],
-          ["中景⭐","肖央打开保温箱：炒饭。递筷子：趁热。王太利掀盖头——浓妆斑驳假睫毛掉了。跨上电动车后座。"],
-          ["特写","王太利抱肖央的腰。霞帔飘成红色尾迹。嘴型：驾。"],
-          ["远景","电动车穿破祥云。保温箱美团标志像月亮。"],
-          ["近景","司仪站空典礼台。龙太子：这百花仙子是不是有点秃？小仙：好像是男的。"],
-          ["大特写","司仪掏手机搜：辞职报告 仙界HR模板。结果：花果山孙总急聘送外卖。八千加提成。"],
-          ["远景","电动车消失云海。字幕：逍遥不是飞得多高。是有人陪你吃冷了还热的炒饭。筷子兄弟二十周年。"]
-        ]
-      },
-      cinema: {
-        mode: "真人写实（默认）",
-        chars: [{
-          name: "肖央", face: "圆偏方脸/下巴圆钝/单眼皮小眼/眼距偏宽/鼻不高鼻头圆/嘴唇偏厚笑露牙龈/偏白皮肤",
-          feature: "黑框眼镜(镜片划痕/左镜腿汗渍腐蚀)/左食指螺丝刀旧疤/172cm中等偏壮含胸",
-          costume: "黄美团外卖服(拉链头回形针代替/右袖机油渍)/深蓝运动鞋头磨损露灰底"
-        },{
-          name: "王太利", face: "偏长国字脸/下颌宽/单眼皮更小眼/鼻梁低鼻头大/嘴唇薄地包天/小麦黑肤/脸颊红血丝/鱼尾纹深/川字纹",
-          feature: "177cm瘦长/男装白汗衫+黑短裤毛边+人字拖右脚磨平+叼烟+脖白毛巾+老式银戒指",
-          costume_female: "凤冠霞帔：浓艳烟熏妆+粉底白三色号+腮红不对称+假睫毛左3cm右2cm+口红涂出嘴角3mm+红盖头静电可见"
-        }],
-        sample_prompt: "Photorealistic live-action, medium shot. Wedding altar. 肖央(round face, small monolid eyes, scratched glasses, yellow Meituan uniform) opens delivery box, fried rice steaming. Hands disposable chopsticks to 王太利(long square face, tiny eyes, red bridal robe, smeared makeup, lipstick beyond lip line) lifting veil — one false eyelash dangling. Shot on ARRI Alexa 50mm f/2.0. --no CGI illustration"
-      },
-      image: { tool: "即梦 S2.0 Pro", seed: "666666", steps: 30, char: "双角色定妆照+逐镜参考图+200词角色卡注入" },
-      video: { tool: "可灵 3.0", motion: "低档。90%固定。s04 横移微抖/s09 极慢拉远/s12 渐远" },
-      editing: { rhythm: "0-8s大婚→8-20s外卖登场→20-35s抢婚→35-50s司仪辞职→50-60s二十周年字幕" },
-      sound: { bgm: "古风恢弘→s06卡祖笛滑稽→s07小苹果变奏", sfx: "引擎/掰筷子/打字/笑声" },
-      publish: { title: "他穿着美团外卖服，抢了百花仙子的婚。司仪当场打开仙界HR系统搜辞职模板。", tags: "#筷子兄弟 #逍遥仙二创 #AI创作 #搞笑", time: "18:00" }
-    };
-    return kuaizi[stage.id] || { status: "done" };
-  }
+  return (historyData[currentHistory] && historyData[currentHistory][stage.id]) || { status: "done", note: "请选择历史项目查看" };
+}
 
-  // 通用数据
-  const genre = document.getElementById('genreSelect').value === 'auto' ? '都市逆袭' : document.getElementById('genreSelect').value;
-  return { genre: genre, note: "请使用「筷子兄弟逍遥仙」等具体关键词获得真实案例数据" };
+// === 历史项目数据 ===
+let currentHistory = 'kuaizi';
+const historyData = {
+  kuaizi: {
+    hotspot: {
+      title: "筷子兄弟《逍遥仙》AI生成MV",
+      source: "抖音/B站/微博 热榜 2026年6月",
+      search_results: "6月15日发布，出道二十周年合体。肖央变外卖员抢婚、王太利反串百花仙子。AI生成画面魔性辣眼，与好听的歌形成强烈反差。网友：我手机脏了！",
+      emotion: { core: "猎奇/魔性上头/反差萌", curve: "好奇→辣眼→破防大笑→鼻酸感动" },
+      framework: "古今双线+AI荒诞+反串笑点=膈应但上头",
+      genre: "古风反串搞笑",
+      diff_angle: "原4分钟MV→1分钟聚焦抢婚瞬间。外卖员骑电动车闯仙界，司仪当场搜辞职模板。"
+    },
+    script: { format: "12镜短片(1分钟)", genre: "古风反串搞笑", shots: [
+      ["大远景","仙山云海。金色宫殿。仙鹤飞过。字幕：农历二零二六，仙界头等大事——百花仙子大婚。"],
+      ["中景","百花仙子闺房。王太利(国字脸/小眼/凤冠霞帔/烟熏妆)掀盖头偷看。楼下传来引擎声。"],
+      ["中景","山下。肖央(圆脸/单眼皮/黑框眼镜/黄美团外卖服)停车看请帖——百花仙子。咬牙。拧油门。"],
+      ["远景","电动车冲上云端。身后尾气。天马列队。万丈深渊。眼镜被风吹歪。"],
+      ["中景","大殿。司仪：新郎·东海龙王三太子驾到——龙太子踩祥云落地，金光闪耀。所有人下跪。"],
+      ["近景","司仪：还有一位——肖央。黄外卖服。拎保温箱。保温箱美团标志。司仪嘴张开三秒没合。"],
+      ["中景⭐","肖央打开保温箱：炒饭。递筷子：趁热。王太利掀盖头——浓妆斑驳假睫毛掉了。放下炒饭拎裙子跨上电动车后座。"],
+      ["特写","王太利抱着肖央的腰。霞帔在风中飘成红色尾迹。脸从后面露出来。嘴型：驾。"],
+      ["远景","电动车穿破祥云。保温箱美团标志在天光照耀下像月亮。"],
+      ["近景","司仪站空典礼台。龙太子一脚踩着聘礼：这百花仙子是不是有点秃？旁边小仙：好像是男的。"],
+      ["大特写","司仪默默掏手机搜：辞职报告 仙界HR系统模板 2026。第一条：花果山孙总急聘送外卖。保底月薪八千加提成。"],
+      ["远景","电动车消失在云海中。远处传来两个人的笑声。字幕：逍遥不是飞得多高。是有人陪你吃一份冷了还热的炒饭。筷子兄弟，出道二十周年。"]
+    ]},
+    cinema: { mode: "真人写实", chars: [
+      { name:"肖央", face:"圆偏方脸/下巴圆钝/单眼皮小眼/眼距偏宽/鼻不高鼻头圆/嘴唇偏厚笑露牙龈/偏白皮肤", feature:"黑框眼镜(镜片划痕/左镜腿汗渍腐蚀)/左食指螺丝刀旧疤/172cm中等偏壮含胸", costume:"黄美团外卖服(拉链头回形针代替/右袖机油渍)/深蓝运动鞋头磨损露灰底" },
+      { name:"王太利", face:"偏长国字脸/下颌宽/单眼皮更小眼/鼻梁低鼻头大/嘴唇薄地包天/小麦黑肤/脸颊红血丝/鱼尾纹深/川字纹", feature:"177cm瘦长/白汗衫+黑短裤毛边+人字拖右脚磨平+叼烟+脖白毛巾+老式银戒指", costume_female:"凤冠霞帔：浓艳烟熏妆+粉底白三色号+腮红不对称+假睫毛左3cm右2cm+口红涂出嘴角3mm+红盖头静电可见" }
+    ], sample_prompt: "Photorealistic live-action, medium shot. Wedding altar. 肖央(round face, small monolid eyes, scratched glasses, yellow Meituan uniform) opens delivery box, fried rice steaming. Hands disposable chopsticks to 王太利(long square face, tiny eyes, red bridal robe, smeared makeup, lipstick beyond lip line) lifting veil. Shot on ARRI Alexa 50mm f/2.0. --no CGI illustration" },
+    image: { tool:"即梦 S2.0 Pro", seed:"666666", steps:30, char:"双角色定妆照+逐镜参考图+200词角色卡注入" },
+    video: { tool:"可灵 3.0", motion:"低档。90%固定。s04横移微抖/s09极慢拉远/s12渐远" },
+    editing: { rhythm:"0-8s大婚钩子→8-20s外卖登场→20-35s抢婚高潮→35-50s司仪辞职→50-60s二十周年字幕" },
+    sound: { bgm:"古风恢弘→s06卡祖笛滑稽→s07小苹果变奏", sfx:"引擎/掰筷子/打字/笑声" },
+    publish: { title:"他穿着美团外卖服，抢了百花仙子的婚。司仪当场打开仙界HR系统搜辞职模板。", tags:"#筷子兄弟 #逍遥仙二创 #AI创作 #搞笑", time:"18:00" }
+  },
+  zhangxue: {
+    hotspot: {
+      title:"张雪机车：被1076万买走35%股份，如今估值10亿",
+      source:"微博/B站/虎扑 热榜 2026年6月",
+      search_results:"张雪是凯越机车的联合创始人兼技术灵魂。董事会以1076万回购了他35%的股份，他被踢出自己一手打造的公司。他没有打官司，没有发声明，带着三个旧部在城郊铁皮厂房里重新开始。一年后，张雪机车在法国赛道夺冠，估值10亿。老东家凯越股价在跌。",
+      emotion:{core:"愤怒→逆袭（被低估的天才证明自己）",curve:"被背叛的不甘→从零再来的孤勇→赛道夺冠的释放→用实力让所有人闭嘴"},
+      framework:"被低估者→被背叛→离开→铁皮厂房重新造车→赛道夺冠→估值10亿",
+      genre:"都市热血逆袭",
+      diff_angle:"不报复，只做事。从头到尾没说前公司一句坏话——只是车更快，人更拼。市场替他复仇。"
+    },
+    script:{format:"9镜短片(2分钟)",genre:"都市热血逆袭",shots:[
+      ["中景","深夜。写字楼会议室。张雪(38岁国字脸厚镜片夹克机油渍)被通知董事会回购股份。1076万买走35%。他签字起身。走到门口——墙上挂着他三天没睡调出的第一辆车照片。看了一眼。走了。"],
+      ["中景","三个月后。城郊铁皮厂房。漏雨屋顶二手机床。张雪和三个老部下围着一台没成型的车架。没有暖气的冬夜，焊接火花交替闪。"],
+      ["中景","第137天。凌晨4点。第一台张雪机车发动了。引擎声回荡铁皮厂房。张雪蹲在车前耳朵贴发动机。然后笑了——第一次。摘下眼镜擦了一下。所有人冲上去把他抛起来。"],
+      ["中景","发布会。小展厅不到一百人。张雪站在台上背后一台车：这是我的车。我不说它最好，我说——你们试试。没有灯光秀PPT。就是一台车和一个人。"],
+      ["远景","法国赛道。雨中。张雪机车车手在大直道上超了前公司的厂队。张雪在维修区攥着秒表指关节发白。没有欢呼。"],
+      ["中景","终点冲刺。率先冲线。维修区所有人冲进雨中。张雪站在原地。旁边老赵——在凯越时带的第一个徒弟——哭得像个孩子。张雪把手搭在他肩上。手上有伤疤有油污有焊渣。"],
+      ["中景","凯越总部。电视播着张雪机车夺冠。高管沉默。有人看股价——在跌。"],
+      ["中景","新车发布会。上千人。张雪还是站一台车前。话更少。还是那张夹克——现在多了不同颜色的线把破洞缝起来的补丁。他摘下眼镜擦。手上有铁锈味。背景墙：张雪机车·2026。"],
+      ["远景","POV驾驶舱。公路前方。弯道。引擎声渐起。屏幕渐亮——「这一秒，你追不上。」"]
+    ]},
+    cinema:{mode:"真人写实",chars:[
+      {name:"张雪",face:"方正国字脸/下颌线硬朗/厚镜片黑框眼镜(微划痕)/单眼皮薄唇/小麦皮/额头横向深纹/脸颊痘坑",feature:"178cm偏瘦肩宽/手臂焊接烫伤/手掌粗糙虎口老茧/指甲黑机油渍/左腕卡西欧Gshock表蒙裂纹",costume:"深蓝牛仔夹克(左胸口袋螺丝刀戳洞)+深灰工装裤(膝盖油渍)+黑色高帮工装靴(鞋头磨破露钢头)"},
+      {name:"老赵",face:"圆脸娃娃脸/浓眉大眼双眼皮/鼻不高鼻头圆/小麦黑肤/右耳一道小伤疤",feature:"175cm结实偏壮/前臂引擎油烫伤/褪色红色头巾",costume:"红色连体赛车服(拉链拉肚脐露灰长袖T恤)+黑色赛车靴"}
+    ],sample_prompt:"Photorealistic live-action. Night boardroom. 38yo Chinese man(square jaw, thick scratched glasses, wheat skin, calloused hands black engine oil under nails, welding burns on forearms, cracked Gshock) in dark blue denim jacket with screwdriver hole, signs contract 1076万 without looking up. Pauses at door where company first motorcycle photo hangs. Shot on 50mm f/2.0, tungsten white balance. --no CGI airbrushed"},
+    image:{tool:"即梦 S2.0 Pro",seed:"777777",steps:30,char:"张雪定妆照(国字脸/黑框眼镜/牛仔夹克/卡西欧表)+老赵定妆照(圆脸/红色头巾/右耳伤疤)"},
+    video:{tool:"可灵 3.0",motion:"静态为主。s05赛车手持微抖+长焦跟拍。s06手持静态(雨滴镜头边缘)"},
+    editing:{rhythm:"0-15s压抑→15-35s重启→35-55s点燃→55-70s发布→70-95s赛道→95-115s终点→115-120s对比+留白"},
+    sound:{bgm:"低沉弦乐→渐强电子节拍→鼓点爆发→钢琴收尾",sfx:"签字笔/焊接火花/发动机点火/雨声/冲线蜂鸣/黑屏静默1秒"},
+    publish:{title:"他值10个亿，但手上还洗不掉机油的黑色",tags:"#短剧 #逆袭 #机车 #张雪机车 #热血",time:"18:00"}
+  },
+  marriage: {
+    hotspot:{
+      title:"八年的婚姻，从一句真话开始崩塌",
+      source:"虎扑社区 热榜#4 52万热度 2026年6月",
+      search_results:"虎扑热帖：老公发现结婚八年的妻子婚前有三年男友且打过胎，从未告知。帖主没有大吵大闹没有离婚——他选择了留下但不爱了。帖中最刺骨的一句：'你从来没有相信过我。你以为我会因为你的过去不要你。所以你替我做了一个我根本没机会做的选择。'",
+      emotion:{core:"被背叛的愤怒+信任崩塌后的空旷感",curve:"震惊→求证→崩溃→冰冷"},
+      framework:"信任崩塌不是一声巨响，是一根一根抽掉的承重墙——最后楼没有塌，但再也没人敢住进去",
+      genre:"都市情感/婚姻悬疑",
+      diff_angle:"不报复不离婚不狗血。选择一种更残忍的冷处理：我还在这个家，但我不再爱你了。这才是真正回不来的八年。"
+    },
+    script:{format:"9镜短片(2分钟)",genre:"都市情感",shots:[
+      ["中景","周六下午。陈远(38岁偏长国字脸细框钛合金老花镜/灰色圆领T恤领口微松)在阳台修女儿摔坏的台灯。阳光很好。客厅妻子削苹果。手机响。陌生人信息：你老婆认识你之前有过三年男友打过胎。他看了一眼。继续修。螺丝刀没停。"],
+      ["近景","深夜。电脑前。他打开她十五年前的QQ空间——她和另一个男人靠在肩上笑。照片日期：认识前三个月。他一根一根抽烟。烟灰缸满了。"],
+      ["中景","早晨厨房。她煎蛋。他站在门口手里打印的照片。这是谁？锅铲停一下。继续翻蛋。蛋煎焦了。"],
+      ["中景","阳台。两人面对面隔着晾衣架上晃动的衣服。她终于开口：三年。为什么不说？怕你不要我。他取下眼镜擦镜片——没擦完就停在那。镜腿硌进掌心。"],
+      ["中景","客厅。她坐沙发哭。他站窗边背对——万家灯火。侧脸被窗框分割光暗。我不怪你以前的事。我怪你从来没有相信过我。你已经失去了——不是我走了，是你从第一天就没让我真正认识你。"],
+      ["中景","一周后。阳台。修玩具车。女儿问：爸爸你和妈妈是不是吵架了？没有。那为什么不说话了？他没回答。螺丝刀继续拧——拧错方向了。"],
+      ["中景","深夜卧室同床背对背。中间一个人距离。她手指碰他背：你还会原谅我吗？沉默。很久。陈远：会的。她手指收回来——因为他没说不原谅。但原谅和不爱了是两回事。"],
+      ["远景","周末公园。女儿跑在前面。她在追。他坐在长椅看着。拿出手机拍照——照片里女儿的笑她的背影湖面反光。没有发朋友圈。锁屏。起身。跟上她们。"],
+      ["特写","婚纱照在微暗的银相框里。照片边缘泛黄。玻璃上有指纹。彩色逐渐褪成黑白。黑屏白字：他选择了留下。不是因为原谅。是因为家不能没有他。但爱可以。"]
+    ]},
+    cinema:{mode:"真人写实",chars:[
+      {name:"陈远",face:"偏长国字脸/下颌线柔和/细框钛合金老花镜(微划痕)/单眼皮眼裂偏短/鼻不高但有肉/薄唇紧抿嘴角下沉/小麦白皮/额头两道浅抬头纹/右边嘴角淡色素痣/左手食指螺丝刀旧疤",feature:"175cm偏瘦含胸/发际线微退鬓角白/左手卡西欧皮表带磨亮",costume:"灰圆领棉T恤(领口微松/下摆小洞/当睡衣)+浅灰棉麻休闲裤(膝盖坐出褶皱)"},
+      {name:"她",face:"瓜子脸/双眼皮大眼偏圆/鼻挺/薄唇/白偏黄皮/鼻梁两侧淡淡雀斑/眼下细纹",feature:"162cm偏瘦锁骨明显手腕细/居家随手低马尾碎发常掉脸上",costume:"粉纯棉家居服(V领松垮)+浅灰睡裤+左手朴素婚戒(小划痕)"}
+    ],sample_prompt:"Photorealistic live-action. Night bedroom overhead shot. Two figures back to back in bed, one adult body width between them. Same man(grey worn t-shirt) and woman(pink pajamas). Her fingertips just touching his back through cotton. Red alarm clock glow 2:47AM on both pillows. Shot on 35mm, moonlight through curtain gap, high ISO grain. --no CGI airbrushed"},
+    image:{tool:"即梦 S2.0 Pro",seed:"444444",steps:30,char:"陈远(偏长方脸/细框老花镜/灰T恤/左手食指旧疤)+她(瓜子脸/雀斑/粉睡衣/朴素婚戒)"},
+    video:{tool:"可灵 3.0",motion:"全程固定极慢推。s05窗边固定。s07俯拍缓慢下降。s08远摄微抖模拟偷拍。"},
+    editing:{rhythm:"0-20s平静→20-40s挖掘→40-70s对峙→70-100s坦白→100-115s裂痕→115-120s照片褪色"},
+    sound:{bgm:"静默+低音大提琴→钢琴单音→弦乐渐弱至静默",sfx:"螺丝刀/QQ消息/煎蛋滋滋/晾衣架/手指碰背部衣物摩擦声→静默"},
+    publish:{title:"结婚第八年，我才发现她从没对我说过真话",tags:"#短剧 #婚姻 #情感 #真实故事 #人性",time:"20:00"}
+  },
+  "nuwa-test": {
+    hotspot:{
+      title:"仙界打工人辞职去人间开烧烤摊",
+      source:"AI创作赛道/筷子兄弟逍遥仙灵感",
+      search_results:"筷子兄弟逍遥仙MV引发AI创作热潮。衍生方向：仙界打工人辞职去人间开烧烤摊——古今穿越+反串笑点+职场吐槽+人间烟火。核心情绪曲线：好奇→惊艳→破防大笑→上头循环。",
+      emotion:{core:"喜感/猎奇（反差美学）",curve:"好奇→惊艳→破防大笑→上头循环"},
+      framework:"古今双线：仙侠唯美+AI视觉惊奇+反串搞笑",
+      genre:"古风奇幻+现代喜剧",
+      diff_angle:"原版书生×狐妖CP。增量：仙界打工人辞职去人间开烧烤摊。保留古今穿越+反串笑点+AI画面的组合，但叙事角度换成职场吐槽+人间烟火。"
+    },
+    script:{format:"14镜短片(2分钟)",genre:"古风奇幻+现代喜剧",shots:[
+      ["大远景","仙山云海。金色宫殿。仙鹤飞过匾额凌霄殿。弹幕：我叫苏然，修仙三年，考进仙界最牛的公司。"],
+      ["中景","大殿。苏然(22岁鹅蛋脸丹凤眼白衣银冠)跪大殿中央满脸期待。传令仙官：分至御马监，司职天马饲养。苏然笑容冻住。"],
+      ["蒙太奇","四格：被天马蹄踹飞/茶水泼仙尊脸上/吃泡面垫金丹期/悬崖边发呆"],
+      ["中近景","悬崖边。师姐(老王反串，白衣仙裙浓艳妆容)转头——假睫毛3cm口红涂出嘴角。苏然瞳孔地震。图什么？图个自在。挥手摸鱼真经凭空出现。"],
+      ["特写","手捧古书摸鱼真经速成版，金光从书缝渗出。一掌拍在苏然胸口。金光爆闪。"],
+      ["中景","古装苏然站十字路口中间。晚高峰车流。交警吹哨。苏然抱头鼠窜。纸条：春风街8号，找老王。"],
+      ["中景","烧烤摊。老王(汗衫「道法自然」寸头人字拖叼烟)翻着串——和师姐同一张脸但纯男人。天上打三份工，不如地上摆一个摊。你要不要蒜？"],
+      ["特写","苏然咬羊肉串。表情三阶段：试探→咀嚼→眼睛睁大。比蟠桃宴上的菜好吃。"],
+      ["全景","人间众生：加班白领独饮、抱孩子妈妈、外卖小哥蹲路边、大妈摇蒲扇。每个人在自己的灯光下。"],
+      ["中景","深夜马路牙子。两人并肩各拿啤酒。老王举瓶对街灯：逍遥不是飞得多高。是你吃着串喝着酒，身边有人陪你吹牛。"],
+      ["四格","四季流转：春穿串桃花开、夏赶蚊子风扇、秋写对联银杏落叶、冬递姜茶蒸汽。苏然现在是白T恤牛仔裤。"],
+      ["中景","仙界师弟白衣飘飘来访。师兄仙尊说只要你回去御马监副主管给你留着。苏然擦桌子：不了。我在这挺好的。"],
+      ["中景","霓虹招牌「老王烧烤·人间分店」下。老王举手机自拍，苏然咧嘴笑牙上粘孜然粒。定格。字幕：苏然，原天庭三级御马使，现春风街8号老王烧烤摊主。"],
+      ["中景","彩蛋。仙尊坐凌霄殿上面前堆着烧烤外卖盒。打开深吸一口气。明天的外卖也点这家。二维码弹出：神仙专享·满一百减二十。"]
+    ]},
+    cinema:{mode:"真人写实",chars:[
+      {name:"苏然",face:"偏长鹅蛋脸/下巴略尖/单眼皮丹凤眼/眼裂偏长/瞳孔深棕/鼻直鼻头圆/冷白皮偏黄/额头鼻翼轻微毛孔/右颊浅酒窝",feature:"175cm清瘦锁骨明显微驼/古装黑高马尾+银冠(划痕)+碎刘海/现代黑短发自然",costume:"古装白交领棉麻长袍(领口微皱袖口磨损)+浅灰布腰带+黑布靴(鞋底磨损)+左红绳手链。现代白圆领棉T恤(领口变形)+浅蓝直筒牛仔裤(膝褪色)+帆布鞋(刷不干净的白色)"},
+      {name:"老王/师姐",face:"方正国字脸/下颌宽/单眼皮小眼/鼻梁偏塌鼻翼宽/嘴唇偏厚/小麦红皮/脸颊鼻头红血丝/鱼尾纹深/川字纹/左眉横向断疤",feature:"172cm/80kg肩宽背厚肚微凸/男装寸头5mm黑掺白/女装黑长假发中分贴头皮",costume:"男装白棉汗衫「道法自然」(洗薄领口松垮)+黑短裤毛边+人字拖右脚磨平+中指老银戒指(内侧刻慧字)+脖白毛巾+裂表蒙机械表+叼烟。女装白纱交领仙裙(静电可见)+百褶长裙拖地沾灰+浓艳妆容(粉底白三色号腮红错位眉不对称假睫毛左右不一致口红涂出唇角)"}
+    ],sample_prompt:"Photorealistic live-action. Night Chinese street food. Same middle-aged actor(buzz cut, white tank top「道法自然」faded red, shorts, worn flip-flops, cigarette, old silver ring) behind grill flipping skewers. Same young actor(oval face, phoenix eyes, white ancient robe) entering confused. Warm amber bulb above, red charcoal glow. String lights bokeh. Shot on 50mm f/2.0. --no CGI airbrushed"},
+    image:{tool:"即梦 S2.0 Pro",seed:"888888",steps:30,char:"苏然(鹅蛋脸/丹凤眼/白袍/红绳)+老王(国字脸/寸头/汗衫/叼烟银戒指)+女装师姐(假发/浓妆错位)"},
+    video:{tool:"可灵 3.0",motion:"低档。s04固定(表情驱动)/s06微抖(穿越)/s08极慢推(第一口)"},
+    editing:{rhythm:"0-6s钩子→6-20s入职→20-35s蒙太奇→35-50s师姐暴击→50-70s穿越→70-100s烟火→100-120s出师"},
+    sound:{bgm:"古风庄严→s04切卡祖笛→人间温暖吉他口哨",sfx:"仙鹤/马啼/茶水泼/刹车尖叫/炭火滋啦/酒瓶碰杯/快门"},
+    publish:{title:"修仙三年考上仙界，上班第一天分去铲屎",tags:"#短剧 #搞笑 #古风 #逍遥仙二创 #打工人",time:"18:00"}
+  }
+};
+
+function loadHistory(key) {
+  currentHistory = key;
+  const data = historyData[key];
+  if (!data) return;
+  // Update input field
+  const titles = {kuaizi:'筷子兄弟逍遥仙', zhangxue:'张雪机车', marriage:'八年婚姻谎言', 'nuwa-test':'仙界打工人'};
+  document.getElementById('ideaInput').value = titles[key] || '';
+  // Reset and auto-run
+  resetPipeline();
+  setTimeout(() => runPipeline(), 300);
 }
 
 function updateCurrentOutput(stage, status, output, allDone) {
