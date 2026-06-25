@@ -186,13 +186,13 @@ function start() {
   if (!data || data.length < 8) { alert('数据未加载'); running = false; return; }
   
   var i = 0;
-  dot.className = 'dot running';
+  document.getElementById('dotCurrent').className = 'dot running';
   
   function next() {
     if (i >= data.length) {
       running = false;
       document.getElementById('startBtn').disabled = false;
-      dot.className = 'dot done';
+      document.getElementById('dotCurrent').className = 'dot done';
       document.getElementById('progressFill').style.width = '100%';
       document.getElementById('stepsOutput').innerHTML = '<b style="color:#4ade80">✅ 全链路完成</b><br><br>1. 角色定妆照 → 按角色卡去即梦出图<br>2. 12镜分镜图 → 逐条Prompt贴即梦<br>3. 视频片段 → 上传分镜图到可灵<br>4. 剪辑+声音+发布 → 剪映/发布方案复制';
       document.getElementById('currentOutput').innerHTML = '<div style="text-align:center;font-size:2em">🏆</div><p style="text-align:center;color:#4ade80;font-size:1.2em">全链路完成！</p>';
