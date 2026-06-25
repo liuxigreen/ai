@@ -609,7 +609,7 @@ function loadHistory(key) {
   document.getElementById('ideaInput').value = titles[key] || '';
   // Reset and auto-run
   resetPipeline();
-  setTimeout(() => runPipeline(), 300);
+  setTimeout(() => startPipeline(), 300);
 }
 
 function updateCurrentOutput(stage, status, output, allDone) {
