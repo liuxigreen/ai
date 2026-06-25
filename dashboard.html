@@ -58,7 +58,7 @@ pre{font-size:0.7em;white-space:pre-wrap;word-break:break-all;max-height:300px;o
     <div class="row">
       <div class="field" style="flex:1.2">
         <label>📂 历史项目</label>
-        <select id="historySelect" onchange="loadDemo(this.value)">
+        <select id="historySelect">
           <option value="">-- 选历史项目 --</option>
           <option value="kuaizi">🥢 筷子兄弟逍遥仙</option>
           <option value="zhangxue">🏍️ 张雪机车·逆袭</option>
@@ -79,7 +79,8 @@ pre{font-size:0.7em;white-space:pre-wrap;word-break:break-all;max-height:300px;o
           <option value="apocalyptic">末世科幻</option>
         </select>
       </div>
-      <button class="btn" id="startBtn" onclick="start()">▶ 一键启动</button>
+      <button class="btn" id="startBtn">▶ 一键启动</button>
+      <button class="btn" id="resetBtn" style="background:rgba(255,255,255,0.08);color:#ccc;display:none">↻ 重置</button>
     </div>
   </div>
 
@@ -226,6 +227,11 @@ function loadDemo(key) {
   var titles = {kuaizi:'筷子兄弟逍遥仙', zhangxue:'张雪机车', marriage:'八年婚姻谎言'};
   document.getElementById('ideaInput').value = titles[key] || '';
 }
+
+// Event listeners (use addEventListener instead of onclick for sandbox compatibility)
+document.getElementById('startBtn').addEventListener('click', start);
+document.getElementById('resetBtn').addEventListener('click', function(){ resetUI(); document.getElementById('startBtn').disabled = false; });
+document.getElementById('historySelect').addEventListener('change', function(){ loadDemo(this.value); });
 </script>
 </body>
 </html>
