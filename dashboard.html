@@ -5,738 +5,227 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>女娲 · AI短剧工厂</title>
 <style>
-* { margin: 0; padding: 0; box-sizing: border-box; }
-body {
-  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "PingFang SC", "Microsoft YaHei", sans-serif;
-  background: #0a0a0f;
-  color: #e0e0e0;
-  min-height: 100vh;
-  overflow-x: hidden;
-}
-canvas#bg { position: fixed; top: 0; left: 0; z-index: 0; pointer-events: none; }
-.container { position: relative; z-index: 1; max-width: 1100px; margin: 0 auto; padding: 24px; }
-
-/* Header */
-.header { text-align: center; padding: 40px 0 20px; }
-.header h1 {
-  font-size: 2.4em;
-  background: linear-gradient(135deg, #a855f7, #6366f1, #ec4899);
-  -webkit-background-clip: text; -webkit-text-fill-color: transparent;
-  background-clip: text;
-}
-.header .subtitle { color: #888; font-size: 0.95em; margin-top: 6px; }
-.header .badge { display: inline-block; background: rgba(168,85,247,0.12); color: #a855f7; font-size: 0.8em; padding: 4px 12px; border-radius: 20px; margin-top: 10px; border: 1px solid rgba(168,85,247,0.25); }
-
-/* Input */
-.input-area {
-  background: rgba(255,255,255,0.03);
-  border: 1px solid rgba(255,255,255,0.08);
-  border-radius: 16px;
-  padding: 24px;
-  margin-bottom: 32px;
-}
-.input-area .row { display: flex; gap: 12px; align-items: flex-end; flex-wrap: wrap; }
-.input-area .field { display: flex; flex-direction: column; gap: 6px; flex: 1; min-width: 180px; }
-.input-area label { font-size: 0.8em; color: #888; }
-.input-area input, .input-area select {
-  background: rgba(255,255,255,0.05);
-  border: 1px solid rgba(255,255,255,0.12);
-  color: #e0e0e0;
-  padding: 10px 14px;
-  border-radius: 10px;
-  font-size: 0.95em;
-  outline: none;
-  transition: border 0.2s;
-}
-.input-area input:focus, .input-area select:focus { border-color: #a855f7; }
-.input-area input { flex: 2; }
-.input-area select { cursor: pointer; }
-.btn {
-  background: linear-gradient(135deg, #7c3aed, #a855f7);
-  color: #fff;
-  border: none;
-  padding: 10px 28px;
-  border-radius: 10px;
-  font-size: 0.95em;
-  cursor: pointer;
-  font-weight: 600;
-  transition: all 0.25s;
-  white-space: nowrap;
-}
-.btn:hover { transform: translateY(-1px); box-shadow: 0 8px 24px rgba(124,58,237,0.3); }
-.btn:disabled { opacity: 0.4; cursor: not-allowed; transform: none; box-shadow: none; }
-.btn.reset { background: rgba(255,255,255,0.08); color: #ccc; }
-
-/* Pipeline */
-.pipeline { margin-bottom: 32px; }
-.pipeline h2 { font-size: 1.1em; color: #999; margin-bottom: 16px; font-weight: 400; }
-
-.stages {
-  display: flex;
-  gap: 0;
-  flex-wrap: wrap;
-  justify-content: center;
-}
-.stage {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  position: relative;
-  flex: 1;
-  min-width: 90px;
-  max-width: 130px;
-}
-.stage .node {
-  width: 64px; height: 64px;
-  border-radius: 18px;
-  display: flex; align-items: center; justify-content: center;
-  font-size: 1.6em;
-  transition: all 0.4s;
-  background: rgba(255,255,255,0.04);
-  border: 2px solid rgba(255,255,255,0.08);
-  position: relative;
-  z-index: 2;
-}
-.stage .node.running {
-  background: rgba(124,58,237,0.15); border-color: #7c3aed;
-  box-shadow: 0 0 20px rgba(124,58,237,0.3); animation: pulse 1.5s infinite;
-}
-.stage .node.done {
-  background: rgba(34,197,94,0.12); border-color: #22c55e;
-}
-.stage .node.done::after {
-  content: "✓"; position: absolute; top: -6px; right: -6px;
-  width: 20px; height: 20px; background: #22c55e; border-radius: 50%;
-  font-size: 11px; color: #fff; display: flex; align-items: center; justify-content: center;
-}
-.stage .label {
-  margin-top: 8px;
-  font-size: 0.72em;
-  color: #666;
-  text-align: center;
-  line-height: 1.3;
-  font-weight: 500;
-}
-.stage .label.done { color: #4ade80; }
-.stage .label.running { color: #a855f7; }
-
-.connector {
-  display: flex; align-items: center;
-  min-width: 24px; height: 64px;
-  position: relative; z-index: 1;
-}
-.connector .line {
-  width: 100%; height: 2px;
-  background: rgba(255,255,255,0.06);
-  transition: background 0.5s;
-}
-.connector .line.done { background: rgba(34,197,94,0.4); }
-.connector .line.running { background: linear-gradient(90deg, rgba(34,197,94,0.4), rgba(124,58,237,0.5)); }
-
-@keyframes pulse {
-  0%, 100% { box-shadow: 0 0 20px rgba(124,58,237,0.3); }
-  50% { box-shadow: 0 0 36px rgba(124,58,237,0.55); }
-}
-
-/* Progress bar */
-.progress-bar {
-  margin: 20px 0 32px;
-  background: rgba(255,255,255,0.04);
-  border-radius: 8px; height: 6px;
-  overflow: hidden;
-}
-.progress-bar .fill {
-  height: 100%; width: 0%;
-  background: linear-gradient(90deg, #7c3aed, #a855f7);
-  border-radius: 8px;
-  transition: width 0.5s;
-}
-
-/* Output */
-.output-area { display: flex; gap: 16px; flex-wrap: wrap; }
-.output-card {
-  flex: 1; min-width: 300px;
-  background: rgba(255,255,255,0.03);
-  border: 1px solid rgba(255,255,255,0.07);
-  border-radius: 14px;
-  overflow: hidden;
-}
-.output-card .card-header {
-  padding: 14px 18px;
-  background: rgba(255,255,255,0.03);
-  font-size: 0.85em;
-  color: #888;
-  border-bottom: 1px solid rgba(255,255,255,0.05);
-  display: flex; align-items: center; gap: 8px;
-}
-.output-card .card-header .dot { width: 8px; height: 8px; border-radius: 50%; background: #666; }
-.output-card .card-header .dot.active { background: #7c3aed; animation: pulse 1.5s infinite; }
-.output-card .card-header .dot.done { background: #22c55e; }
-.output-card .card-body {
-  padding: 16px 18px;
-  font-size: 0.88em;
-  line-height: 1.7;
-  color: #bbb;
-  max-height: 420px;
-  overflow-y: auto;
-}
-.output-card .card-body pre {
-  background: rgba(0,0,0,0.3);
-  border-radius: 8px;
-  padding: 12px;
-  font-size: 0.82em;
-  overflow-x: auto;
-  color: #a5b4fc;
-  white-space: pre-wrap;
-  word-break: break-all;
-}
-.output-card .card-body h3 { color: #e0e0e0; font-size: 1em; margin-bottom: 8px; }
-.output-card .card-body .tag {
-  display: inline-block; background: rgba(124,58,237,0.12); color: #a855f7;
-  padding: 2px 8px; border-radius: 4px; font-size: 0.8em; margin: 2px;
-  border: 1px solid rgba(124,58,237,0.2);
-}
-
-/* Footer */
-.footer {
-  text-align: center; padding: 40px 0;
-  color: #555; font-size: 0.78em;
-}
-
-/* Empty state */
-.empty-state { text-align: center; padding: 40px 20px; color: #666; }
-.empty-state .icon { font-size: 3em; margin-bottom: 12px; opacity: 0.5; }
-
-/* Scrollbar */
-::-webkit-scrollbar { width: 6px; }
-::-webkit-scrollbar-track { background: transparent; }
-::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.08); border-radius: 3px; }
+*{margin:0;padding:0;box-sizing:border-box}
+body{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI","PingFang SC","Microsoft YaHei",sans-serif;background:#0a0a0f;color:#e0e0e0;min-height:100vh}
+.container{max-width:1100px;margin:0 auto;padding:24px}
+.header{text-align:center;padding:40px 0 20px}
+.header h1{font-size:2.2em;background:linear-gradient(135deg,#a855f7,#6366f1,#ec4899);-webkit-background-clip:text;-webkit-text-fill-color:transparent}
+.header .subtitle{color:#888;font-size:0.9em;margin-top:4px}
+.input-area{background:rgba(255,255,255,0.03);border:1px solid rgba(255,255,255,0.08);border-radius:16px;padding:20px;margin-bottom:24px}
+.input-area .row{display:flex;gap:10px;align-items:flex-end;flex-wrap:wrap}
+.input-area .field{display:flex;flex-direction:column;gap:4px;flex:1;min-width:150px}
+.input-area label{font-size:0.78em;color:#888}
+.input-area input,.input-area select{background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.12);color:#e0e0e0;padding:8px 12px;border-radius:8px;font-size:0.9em;outline:none}
+.input-area input:focus,.input-area select:focus{border-color:#a855f7}
+.btn{background:linear-gradient(135deg,#7c3aed,#a855f7);color:#fff;border:none;padding:8px 22px;border-radius:8px;font-size:0.9em;cursor:pointer;font-weight:600}
+.btn:hover{box-shadow:0 4px 16px rgba(124,58,237,0.3)}
+.btn:disabled{opacity:0.4;cursor:not-allowed}
+.stages{display:flex;gap:4px;flex-wrap:wrap;justify-content:center;margin-bottom:24px}
+.stage{display:flex;flex-direction:column;align-items:center;flex:1;min-width:80px;max-width:110px}
+.node{width:48px;height:48px;border-radius:14px;display:flex;align-items:center;justify-content:center;font-size:1.3em;background:rgba(255,255,255,0.04);border:2px solid rgba(255,255,255,0.08);transition:all 0.3s}
+.node.done{background:rgba(74,222,128,0.15);border-color:#4ade80}
+.node.running{background:rgba(168,85,247,0.25);border-color:#a855f7;animation:pulse 0.8s infinite}
+@keyframes pulse{0%,100%{box-shadow:0 0 0 0 rgba(168,85,247,0.4)}50%{box-shadow:0 0 0 12px rgba(168,85,247,0)}}
+.label{font-size:0.65em;text-align:center;margin-top:6px;color:#666}
+.label.active{color:#a855f7}
+.label.done{color:#4ade80}
+.connector{flex:0 0 20px;display:flex;align-items:center}
+.line{flex:1;height:2px;background:rgba(255,255,255,0.06);transition:all 0.4s}
+.line.done{background:#4ade80}
+.line.running{background:linear-gradient(90deg,#4ade80,#a855f7)}
+.progress{width:100%;height:3px;background:rgba(255,255,255,0.04);border-radius:2px;margin-bottom:24px}
+.progress .fill{height:100%;background:#a855f7;border-radius:2px;transition:width 0.4s;width:0%}
+.output-card{background:rgba(255,255,255,0.02);border:1px solid rgba(255,255,255,0.06);border-radius:12px;padding:16px;margin-bottom:16px;flex:1}
+.card-header{font-size:0.8em;color:#888;margin-bottom:10px;display:flex;align-items:center;gap:6px}
+.dot{width:8px;height:8px;border-radius:50%;background:#333}
+.dot.done{background:#4ade80}
+.dot.running{background:#a855f7;animation:pulse 0.8s infinite}
+.dual-panel{display:flex;gap:16px}
+.dual-panel>*{flex:1}
+.tag{display:inline-block;background:rgba(168,85,247,0.12);color:#a855f7;font-size:0.72em;padding:2px 8px;border-radius:10px;margin:0 4px 4px 0}
+pre{font-size:0.7em;white-space:pre-wrap;word-break:break-all;max-height:300px;overflow-y:auto}
+@media(max-width:768px){.dual-panel{flex-direction:column}.stage{min-width:50px;max-width:80px}}
 </style>
 </head>
 <body>
-
-<canvas id="bg"></canvas>
-
 <div class="container">
-  <!-- Header -->
   <div class="header">
     <h1>女娲 · AI短剧工厂</h1>
-    <div class="subtitle">一键从创意到发布 — 8站专家级流水线</div>
-    <div class="badge">8/8 全线通车</div>
+    <p class="subtitle">热点→编剧→画面→生图→生视频→剪辑→声音→发布</p>
   </div>
 
-  <!-- Input -->
   <div class="input-area">
     <div class="row">
-      <div class="field" style="flex:1.5">
+      <div class="field" style="flex:1.2">
         <label>📂 历史项目</label>
-        <select id="historySelect" onchange="loadHistory(this.value)" style="width:100%">
-          <option value="kuaizi" selected>🥢 筷子兄弟逍遥仙</option>
+        <select id="historySelect" onchange="loadDemo(this.value)">
+          <option value="">-- 选历史项目 --</option>
+          <option value="kuaizi">🥢 筷子兄弟逍遥仙</option>
           <option value="zhangxue">🏍️ 张雪机车·逆袭</option>
           <option value="marriage">💔 八年婚姻谎言</option>
-          <option value="nuwa-test">🔧 逍遥仙·仙界打工人</option>
         </select>
       </div>
       <div class="field" style="flex:2">
+        <label>🔍 创意</label>
+        <input id="ideaInput" placeholder="筷子兄弟逍遥仙" value="筷子兄弟逍遥仙">
       </div>
-      <div class="field" style="flex:1.5">
-        <label>🎬 题材</label>
-        <select id="genreSelect">
-          <option value="auto">自动匹配</option>
-          <option value="都市逆袭">都市逆袭</option>
-          <option value="古风仙侠">古风仙侠</option>
-          <option value="甜宠恋爱">甜宠恋爱</option>
-          <option value="悬疑反转">悬疑反转</option>
-          <option value="搞笑沙雕">搞笑沙雕</option>
-          <option value="科幻末世">科幻末世</option>
-        </select>
-      </div>
-      <div class="field" style="flex:1.5">
-        <label>🎥 视觉风格</label>
+      <div class="field" style="flex:1">
+        <label>🎥 风格</label>
         <select id="styleSelect">
-          <option value="auto">自动匹配</option>
-          <option value="wong">王家卫（情绪霓虹）</option>
-          <option value="anderson">韦斯·安德森（对称纪律）</option>
-          <option value="apocalyptic">末世科幻（废土朋克）</option>
-          <option value="realistic" selected>真人写实（电影级）</option>
-          <option value="cultivation">国漫修仙（遮天级）</option>
+          <option value="realistic" selected>真人写实</option>
+          <option value="cultivation">国漫修仙</option>
+          <option value="wong">王家卫</option>
+          <option value="anderson">韦斯·安德森</option>
+          <option value="apocalyptic">末世科幻</option>
         </select>
       </div>
-      <div class="field" style="flex:0.8">
-        <label>⏱ 时长</label>
-        <select id="durationSelect">
-          <option value="1min">1分钟</option>
-          <option value="2min">2分钟</option>
-          <option value="3min">3分钟</option>
-        </select>
-      </div>
-      <div class="field" style="flex:0.6; justify-content:flex-end;">
-        <button class="btn" id="startBtn" onclick="startPipeline()">▶ 一键启动</button>
-      </div>
-      <div class="field" style="flex:0.6; justify-content:flex-end;">
-        <button class="btn reset" id="resetBtn" onclick="resetPipeline()" disabled>↺ 重置</button>
-      </div>
+      <button class="btn" id="startBtn" onclick="start()">▶ 一键启动</button>
     </div>
   </div>
 
-  <!-- Pipeline -->
   <div class="pipeline">
-    <h2>流水线 · Pipeline</h2>
     <div class="stages" id="stagesContainer"></div>
-    <div class="progress-bar"><div class="fill" id="progressFill"></div></div>
+    <div class="progress"><div class="fill" id="progressFill"></div></div>
   </div>
 
-  <!-- Output -->
-  <div class="output-area">
+  <div class="dual-panel">
     <div class="output-card">
-      <div class="card-header"><span class="dot" id="dotCurrent"></span>当前阶段输出</div>
-      <div class="card-body" id="currentOutput">
-        <div class="empty-state">
-          <div class="icon">🐚</div>
-          <div>输入你的创意，点击「一键启动」</div>
-        </div>
-      </div>
+      <div class="card-header"><span class="dot" id="dotCurrent"></span>当前输出</div>
+      <div id="currentOutput" style="font-size:0.85em;color:#999">输入创意，点击「一键启动」</div>
     </div>
     <div class="output-card">
-      <div class="card-header"><span class="dot done"></span>可用操作</div>
-      <div class="card-body" id="jsonOutput">
-        <div class="empty-state">
-          <div class="icon">📋</div>
-          <div>每阶段完成后，这里显示可执行的下一步操作</div>
-        </div>
-      </div>
+      <div class="card-header">📋 操作指南</div>
+      <div id="stepsOutput" style="font-size:0.85em;color:#999">启动完成后显示分步操作</div>
     </div>
   </div>
-
-  <div class="footer">女娲 · AI短剧工厂 v1.0 | 8站蒸馏专家 · 一键到发布</div>
 </div>
 
 <script>
-// ======== Background Canvas ========
-const canvas = document.getElementById('bg');
-const ctx = canvas.getContext('2d');
-let particles = [];
-function resizeCanvas() {
-  canvas.width = window.innerWidth;
-  canvas.height = window.innerHeight;
-}
-resizeCanvas();
-window.addEventListener('resize', resizeCanvas);
+// ====== DATA ======
+var currentDemo = 'kuaizi';
 
-class Particle {
-  constructor() { this.reset(); }
-  reset() {
-    this.x = Math.random() * canvas.width;
-    this.y = Math.random() * canvas.height;
-    this.vx = (Math.random() - 0.5) * 0.4;
-    this.vy = (Math.random() - 0.5) * 0.4;
-    this.size = Math.random() * 1.5 + 0.5;
-    this.opacity = Math.random() * 0.3 + 0.05;
-  }
-  update() {
-    this.x += this.vx;
-    this.y += this.vy;
-    if (this.x < 0 || this.x > canvas.width || this.y < 0 || this.y > canvas.height) this.reset();
-  }
-  draw() {
-    ctx.beginPath();
-    ctx.arc(this.x, this.y, this.size, 0, Math.PI * 2);
-    ctx.fillStyle = `rgba(168,85,247,${this.opacity})`;
-    ctx.fill();
-  }
-}
-for (let i = 0; i < 60; i++) particles.push(new Particle());
-
-function animateBg() {
-  ctx.clearRect(0, 0, canvas.width, canvas.height);
-  particles.forEach(p => { p.update(); p.draw(); });
-  // Connect nearby particles
-  for (let i = 0; i < particles.length; i++) {
-    for (let j = i + 1; j < particles.length; j++) {
-      const dx = particles[i].x - particles[j].x;
-      const dy = particles[i].y - particles[j].y;
-      const dist = Math.sqrt(dx * dx + dy * dy);
-      if (dist < 120) {
-        ctx.beginPath();
-        ctx.moveTo(particles[i].x, particles[i].y);
-        ctx.lineTo(particles[j].x, particles[j].y);
-        ctx.strokeStyle = `rgba(124,58,237,${0.06 * (1 - dist / 120)})`;
-        ctx.stroke();
-      }
-    }
-  }
-  requestAnimationFrame(animateBg);
-}
-animateBg();
-
-// ======== Pipeline Config ========
-const stages = [
-  { id: 'hotspot',     emoji: '🔍', label: '热点发现', desc: '扫描热榜，拆解情绪' },
-  { id: 'script',      emoji: '✍️', label: '短剧编剧', desc: '四阶段流，15镜剧本' },
-  { id: 'cinema',      emoji: '🎬', label: '画面指令', desc: '7模块Prompt，角色卡' },
-  { id: 'image',       emoji: '🖼️', label: '生图执行', desc: 'CHAR资产库，分镜图' },
-  { id: 'video',       emoji: '🎥', label: '生视频', desc: '运镜词典，首尾帧链' },
-  { id: 'editing',     emoji: '✂️', label: '剪辑节奏', desc: '3-5-15-40网格，转场' },
-  { id: 'sound',       emoji: '🎵', label: '声音设计', desc: 'BGM速配，三明治音轨' },
-  { id: 'publish',     emoji: '🚀', label: '发布运营', desc: '标题钩子，封面标签' },
-];
-
-let pipelineState = {};
-let running = false;
-let currentStage = -1;
-let timeoutHandles = [];
-
-// ======== Init Pipeline UI ========
-function buildPipeline() {
-  const container = document.getElementById('stagesContainer');
-  container.innerHTML = '';
-  stages.forEach((s, i) => {
-    if (i > 0) {
-      const conn = document.createElement('div');
-      conn.className = 'connector';
-      conn.innerHTML = '<div class="line" id="line' + i + '"></div>';
-      container.appendChild(conn);
-    }
-    const div = document.createElement('div');
-    div.className = 'stage';
-    div.innerHTML = `
-      <div class="node" id="node${s.id}">${s.emoji}</div>
-      <div class="label" id="label${s.id}">${s.label}<br><small>${s.desc}</small></div>
-    `;
-    container.appendChild(div);
-  });
-}
-
-// ======== Start Pipeline ========
-async function startPipeline() {
-  try {
-  if (running) { console.log('already running'); return; }
-  const idea = document.getElementById('ideaInput').value.trim();
-  if (!idea) { alert('请先输入你的创意！'); return; }
-
-  running = true;
-  currentStage = -1;
-  pipelineState = {
-    project_id: 'nuwa-' + Date.now(),
-    created_at: new Date().toISOString(),
-    user_input: idea,
-    genre: document.getElementById('genreSelect').value,
-    style: document.getElementById('styleSelect').value,
-    duration: document.getElementById('durationSelect').value,
-    stages: {}
-  };
-  stages.forEach(s => { pipelineState.stages[s.id] = { status: 'pending', output: null }; });
-
-  document.getElementById('startBtn').disabled = true;
-  document.getElementById('resetBtn').disabled = true;
-  updateUI();
-
-  // Run stages sequentially
-  for (let i = 0; i < stages.length; i++) {
-    currentStage = i;
-    const stage = stages[i];
-    pipelineState.stages[stage.id].status = 'running';
-    updateUI();
-    updateCurrentOutput(stage, 'running');
-
-    // Simulate work with progressive output
-    const output = generateFakeOutput(stage, i, idea);
-    pipelineState.stages[stage.id].output = output;
-    
-    // Artificial delay to show progress
-    await sleep(800 + Math.random() * 600);
-    
-    pipelineState.stages[stage.id].status = 'done';
-    updateUI();
-    updateCurrentOutput(stage, 'done', output);
-  }
-
-  currentStage = -1;
-  running = false;
-  document.getElementById('startBtn').disabled = false;
-  document.getElementById('resetBtn').disabled = false;
-  document.getElementById('dotCurrent').className = 'dot done';
-  updateJsonOutput();
-  updateCurrentOutput(null, 'done', null, true);
-  } catch(e) {
-    document.getElementById('currentOutput').innerHTML = '<div style="color:red;padding:10px;"><strong>出错了：</strong>' + e.message + '</div>';
-    running = false;
-    document.getElementById('startBtn').disabled = false;
-  }
-}
-
-function generateFakeOutput(stage, index, idea) {
-  return (historyData[currentHistory] && historyData[currentHistory][stage.id]) || { status: "done", note: "请选择历史项目查看" };
-}
-
-// === 历史项目数据 ===
-let currentHistory = 'kuaizi';
-const historyData = {
-  kuaizi: {
-    hotspot: {
-      title: "筷子兄弟《逍遥仙》AI生成MV",
-      source: "抖音/B站/微博 热榜 2026年6月",
-      search_results: "6月15日发布，出道二十周年合体。肖央变外卖员抢婚、王太利反串百花仙子。AI生成画面魔性辣眼，与好听的歌形成强烈反差。网友：我手机脏了！",
-      emotion: { core: "猎奇/魔性上头/反差萌", curve: "好奇→辣眼→破防大笑→鼻酸感动" },
-      framework: "古今双线+AI荒诞+反串笑点=膈应但上头",
-      genre: "古风反串搞笑",
-      diff_angle: "原4分钟MV→1分钟聚焦抢婚瞬间。外卖员骑电动车闯仙界，司仪当场搜辞职模板。"
-    },
-    script: { format: "12镜短片(1分钟)", genre: "古风反串搞笑", shots: [
-      ["大远景","仙山云海。金色宫殿。仙鹤飞过。字幕：农历二零二六，仙界头等大事——百花仙子大婚。"],
-      ["中景","百花仙子闺房。王太利(国字脸/小眼/凤冠霞帔/烟熏妆)掀盖头偷看。楼下传来引擎声。"],
-      ["中景","山下。肖央(圆脸/单眼皮/黑框眼镜/黄美团外卖服)停车看请帖——百花仙子。咬牙。拧油门。"],
-      ["远景","电动车冲上云端。身后尾气。天马列队。万丈深渊。眼镜被风吹歪。"],
-      ["中景","大殿。司仪：新郎·东海龙王三太子驾到——龙太子踩祥云落地，金光闪耀。所有人下跪。"],
-      ["近景","司仪：还有一位——肖央。黄外卖服。拎保温箱。保温箱美团标志。司仪嘴张开三秒没合。"],
-      ["中景⭐","肖央打开保温箱：炒饭。递筷子：趁热。王太利掀盖头——浓妆斑驳假睫毛掉了。放下炒饭拎裙子跨上电动车后座。"],
-      ["特写","王太利抱着肖央的腰。霞帔在风中飘成红色尾迹。脸从后面露出来。嘴型：驾。"],
-      ["远景","电动车穿破祥云。保温箱美团标志在天光照耀下像月亮。"],
-      ["近景","司仪站空典礼台。龙太子一脚踩着聘礼：这百花仙子是不是有点秃？旁边小仙：好像是男的。"],
-      ["大特写","司仪默默掏手机搜：辞职报告 仙界HR系统模板 2026。第一条：花果山孙总急聘送外卖。保底月薪八千加提成。"],
-      ["远景","电动车消失在云海中。远处传来两个人的笑声。字幕：逍遥不是飞得多高。是有人陪你吃一份冷了还热的炒饭。筷子兄弟，出道二十周年。"]
-    ]},
-    cinema: { mode: "真人写实", chars: [
-      { name:"肖央", face:"圆偏方脸/下巴圆钝/单眼皮小眼/眼距偏宽/鼻不高鼻头圆/嘴唇偏厚笑露牙龈/偏白皮肤", feature:"黑框眼镜(镜片划痕/左镜腿汗渍腐蚀)/左食指螺丝刀旧疤/172cm中等偏壮含胸", costume:"黄美团外卖服(拉链头回形针代替/右袖机油渍)/深蓝运动鞋头磨损露灰底" },
-      { name:"王太利", face:"偏长国字脸/下颌宽/单眼皮更小眼/鼻梁低鼻头大/嘴唇薄地包天/小麦黑肤/脸颊红血丝/鱼尾纹深/川字纹", feature:"177cm瘦长/白汗衫+黑短裤毛边+人字拖右脚磨平+叼烟+脖白毛巾+老式银戒指", costume_female:"凤冠霞帔：浓艳烟熏妆+粉底白三色号+腮红不对称+假睫毛左3cm右2cm+口红涂出嘴角3mm+红盖头静电可见" }
-    ], sample_prompt: "Photorealistic live-action, medium shot. Wedding altar. 肖央(round face, small monolid eyes, scratched glasses, yellow Meituan uniform) opens delivery box, fried rice steaming. Hands disposable chopsticks to 王太利(long square face, tiny eyes, red bridal robe, smeared makeup, lipstick beyond lip line) lifting veil. Shot on ARRI Alexa 50mm f/2.0. --no CGI illustration" },
-    image: { tool:"即梦 S2.0 Pro", seed:"666666", steps:30, char:"双角色定妆照+逐镜参考图+200词角色卡注入" },
-    video: { tool:"可灵 3.0", motion:"低档。90%固定。s04横移微抖/s09极慢拉远/s12渐远" },
-    editing: { rhythm:"0-8s大婚钩子→8-20s外卖登场→20-35s抢婚高潮→35-50s司仪辞职→50-60s二十周年字幕" },
-    sound: { bgm:"古风恢弘→s06卡祖笛滑稽→s07小苹果变奏", sfx:"引擎/掰筷子/打字/笑声" },
-    publish: { title:"他穿着美团外卖服，抢了百花仙子的婚。司仪当场打开仙界HR系统搜辞职模板。", tags:"#筷子兄弟 #逍遥仙二创 #AI创作 #搞笑", time:"18:00" }
-  },
-  zhangxue: {
-    hotspot: {
-      title:"张雪机车：被1076万买走35%股份，如今估值10亿",
-      source:"微博/B站/虎扑 热榜 2026年6月",
-      search_results:"张雪是凯越机车的联合创始人兼技术灵魂。董事会以1076万回购了他35%的股份，他被踢出自己一手打造的公司。他没有打官司，没有发声明，带着三个旧部在城郊铁皮厂房里重新开始。一年后，张雪机车在法国赛道夺冠，估值10亿。老东家凯越股价在跌。",
-      emotion:{core:"愤怒→逆袭（被低估的天才证明自己）",curve:"被背叛的不甘→从零再来的孤勇→赛道夺冠的释放→用实力让所有人闭嘴"},
-      framework:"被低估者→被背叛→离开→铁皮厂房重新造车→赛道夺冠→估值10亿",
-      genre:"都市热血逆袭",
-      diff_angle:"不报复，只做事。从头到尾没说前公司一句坏话——只是车更快，人更拼。市场替他复仇。"
-    },
-    script:{format:"9镜短片(2分钟)",genre:"都市热血逆袭",shots:[
-      ["中景","深夜。写字楼会议室。张雪(38岁国字脸厚镜片夹克机油渍)被通知董事会回购股份。1076万买走35%。他签字起身。走到门口——墙上挂着他三天没睡调出的第一辆车照片。看了一眼。走了。"],
-      ["中景","三个月后。城郊铁皮厂房。漏雨屋顶二手机床。张雪和三个老部下围着一台没成型的车架。没有暖气的冬夜，焊接火花交替闪。"],
-      ["中景","第137天。凌晨4点。第一台张雪机车发动了。引擎声回荡铁皮厂房。张雪蹲在车前耳朵贴发动机。然后笑了——第一次。摘下眼镜擦了一下。所有人冲上去把他抛起来。"],
-      ["中景","发布会。小展厅不到一百人。张雪站在台上背后一台车：这是我的车。我不说它最好，我说——你们试试。没有灯光秀PPT。就是一台车和一个人。"],
-      ["远景","法国赛道。雨中。张雪机车车手在大直道上超了前公司的厂队。张雪在维修区攥着秒表指关节发白。没有欢呼。"],
-      ["中景","终点冲刺。率先冲线。维修区所有人冲进雨中。张雪站在原地。旁边老赵——在凯越时带的第一个徒弟——哭得像个孩子。张雪把手搭在他肩上。手上有伤疤有油污有焊渣。"],
-      ["中景","凯越总部。电视播着张雪机车夺冠。高管沉默。有人看股价——在跌。"],
-      ["中景","新车发布会。上千人。张雪还是站一台车前。话更少。还是那张夹克——现在多了不同颜色的线把破洞缝起来的补丁。他摘下眼镜擦。手上有铁锈味。背景墙：张雪机车·2026。"],
-      ["远景","POV驾驶舱。公路前方。弯道。引擎声渐起。屏幕渐亮——「这一秒，你追不上。」"]
-    ]},
-    cinema:{mode:"真人写实",chars:[
-      {name:"张雪",face:"方正国字脸/下颌线硬朗/厚镜片黑框眼镜(微划痕)/单眼皮薄唇/小麦皮/额头横向深纹/脸颊痘坑",feature:"178cm偏瘦肩宽/手臂焊接烫伤/手掌粗糙虎口老茧/指甲黑机油渍/左腕卡西欧Gshock表蒙裂纹",costume:"深蓝牛仔夹克(左胸口袋螺丝刀戳洞)+深灰工装裤(膝盖油渍)+黑色高帮工装靴(鞋头磨破露钢头)"},
-      {name:"老赵",face:"圆脸娃娃脸/浓眉大眼双眼皮/鼻不高鼻头圆/小麦黑肤/右耳一道小伤疤",feature:"175cm结实偏壮/前臂引擎油烫伤/褪色红色头巾",costume:"红色连体赛车服(拉链拉肚脐露灰长袖T恤)+黑色赛车靴"}
-    ],sample_prompt:"Photorealistic live-action. Night boardroom. 38yo Chinese man(square jaw, thick scratched glasses, wheat skin, calloused hands black engine oil under nails, welding burns on forearms, cracked Gshock) in dark blue denim jacket with screwdriver hole, signs contract 1076万 without looking up. Pauses at door where company first motorcycle photo hangs. Shot on 50mm f/2.0, tungsten white balance. --no CGI airbrushed"},
-    image:{tool:"即梦 S2.0 Pro",seed:"777777",steps:30,char:"张雪定妆照(国字脸/黑框眼镜/牛仔夹克/卡西欧表)+老赵定妆照(圆脸/红色头巾/右耳伤疤)"},
-    video:{tool:"可灵 3.0",motion:"静态为主。s05赛车手持微抖+长焦跟拍。s06手持静态(雨滴镜头边缘)"},
-    editing:{rhythm:"0-15s压抑→15-35s重启→35-55s点燃→55-70s发布→70-95s赛道→95-115s终点→115-120s对比+留白"},
-    sound:{bgm:"低沉弦乐→渐强电子节拍→鼓点爆发→钢琴收尾",sfx:"签字笔/焊接火花/发动机点火/雨声/冲线蜂鸣/黑屏静默1秒"},
-    publish:{title:"他值10个亿，但手上还洗不掉机油的黑色",tags:"#短剧 #逆袭 #机车 #张雪机车 #热血",time:"18:00"}
-  },
-  marriage: {
-    hotspot:{
-      title:"八年的婚姻，从一句真话开始崩塌",
-      source:"虎扑社区 热榜#4 52万热度 2026年6月",
-      search_results:"虎扑热帖：老公发现结婚八年的妻子婚前有三年男友且打过胎，从未告知。帖主没有大吵大闹没有离婚——他选择了留下但不爱了。帖中最刺骨的一句：'你从来没有相信过我。你以为我会因为你的过去不要你。所以你替我做了一个我根本没机会做的选择。'",
-      emotion:{core:"被背叛的愤怒+信任崩塌后的空旷感",curve:"震惊→求证→崩溃→冰冷"},
-      framework:"信任崩塌不是一声巨响，是一根一根抽掉的承重墙——最后楼没有塌，但再也没人敢住进去",
-      genre:"都市情感/婚姻悬疑",
-      diff_angle:"不报复不离婚不狗血。选择一种更残忍的冷处理：我还在这个家，但我不再爱你了。这才是真正回不来的八年。"
-    },
-    script:{format:"9镜短片(2分钟)",genre:"都市情感",shots:[
-      ["中景","周六下午。陈远(38岁偏长国字脸细框钛合金老花镜/灰色圆领T恤领口微松)在阳台修女儿摔坏的台灯。阳光很好。客厅妻子削苹果。手机响。陌生人信息：你老婆认识你之前有过三年男友打过胎。他看了一眼。继续修。螺丝刀没停。"],
-      ["近景","深夜。电脑前。他打开她十五年前的QQ空间——她和另一个男人靠在肩上笑。照片日期：认识前三个月。他一根一根抽烟。烟灰缸满了。"],
-      ["中景","早晨厨房。她煎蛋。他站在门口手里打印的照片。这是谁？锅铲停一下。继续翻蛋。蛋煎焦了。"],
-      ["中景","阳台。两人面对面隔着晾衣架上晃动的衣服。她终于开口：三年。为什么不说？怕你不要我。他取下眼镜擦镜片——没擦完就停在那。镜腿硌进掌心。"],
-      ["中景","客厅。她坐沙发哭。他站窗边背对——万家灯火。侧脸被窗框分割光暗。我不怪你以前的事。我怪你从来没有相信过我。你已经失去了——不是我走了，是你从第一天就没让我真正认识你。"],
-      ["中景","一周后。阳台。修玩具车。女儿问：爸爸你和妈妈是不是吵架了？没有。那为什么不说话了？他没回答。螺丝刀继续拧——拧错方向了。"],
-      ["中景","深夜卧室同床背对背。中间一个人距离。她手指碰他背：你还会原谅我吗？沉默。很久。陈远：会的。她手指收回来——因为他没说不原谅。但原谅和不爱了是两回事。"],
-      ["远景","周末公园。女儿跑在前面。她在追。他坐在长椅看着。拿出手机拍照——照片里女儿的笑她的背影湖面反光。没有发朋友圈。锁屏。起身。跟上她们。"],
-      ["特写","婚纱照在微暗的银相框里。照片边缘泛黄。玻璃上有指纹。彩色逐渐褪成黑白。黑屏白字：他选择了留下。不是因为原谅。是因为家不能没有他。但爱可以。"]
-    ]},
-    cinema:{mode:"真人写实",chars:[
-      {name:"陈远",face:"偏长国字脸/下颌线柔和/细框钛合金老花镜(微划痕)/单眼皮眼裂偏短/鼻不高但有肉/薄唇紧抿嘴角下沉/小麦白皮/额头两道浅抬头纹/右边嘴角淡色素痣/左手食指螺丝刀旧疤",feature:"175cm偏瘦含胸/发际线微退鬓角白/左手卡西欧皮表带磨亮",costume:"灰圆领棉T恤(领口微松/下摆小洞/当睡衣)+浅灰棉麻休闲裤(膝盖坐出褶皱)"},
-      {name:"她",face:"瓜子脸/双眼皮大眼偏圆/鼻挺/薄唇/白偏黄皮/鼻梁两侧淡淡雀斑/眼下细纹",feature:"162cm偏瘦锁骨明显手腕细/居家随手低马尾碎发常掉脸上",costume:"粉纯棉家居服(V领松垮)+浅灰睡裤+左手朴素婚戒(小划痕)"}
-    ],sample_prompt:"Photorealistic live-action. Night bedroom overhead shot. Two figures back to back in bed, one adult body width between them. Same man(grey worn t-shirt) and woman(pink pajamas). Her fingertips just touching his back through cotton. Red alarm clock glow 2:47AM on both pillows. Shot on 35mm, moonlight through curtain gap, high ISO grain. --no CGI airbrushed"},
-    image:{tool:"即梦 S2.0 Pro",seed:"444444",steps:30,char:"陈远(偏长方脸/细框老花镜/灰T恤/左手食指旧疤)+她(瓜子脸/雀斑/粉睡衣/朴素婚戒)"},
-    video:{tool:"可灵 3.0",motion:"全程固定极慢推。s05窗边固定。s07俯拍缓慢下降。s08远摄微抖模拟偷拍。"},
-    editing:{rhythm:"0-20s平静→20-40s挖掘→40-70s对峙→70-100s坦白→100-115s裂痕→115-120s照片褪色"},
-    sound:{bgm:"静默+低音大提琴→钢琴单音→弦乐渐弱至静默",sfx:"螺丝刀/QQ消息/煎蛋滋滋/晾衣架/手指碰背部衣物摩擦声→静默"},
-    publish:{title:"结婚第八年，我才发现她从没对我说过真话",tags:"#短剧 #婚姻 #情感 #真实故事 #人性",time:"20:00"}
-  },
-  "nuwa-test": {
-    hotspot:{
-      title:"仙界打工人辞职去人间开烧烤摊",
-      source:"AI创作赛道/筷子兄弟逍遥仙灵感",
-      search_results:"筷子兄弟逍遥仙MV引发AI创作热潮。衍生方向：仙界打工人辞职去人间开烧烤摊——古今穿越+反串笑点+职场吐槽+人间烟火。核心情绪曲线：好奇→惊艳→破防大笑→上头循环。",
-      emotion:{core:"喜感/猎奇（反差美学）",curve:"好奇→惊艳→破防大笑→上头循环"},
-      framework:"古今双线：仙侠唯美+AI视觉惊奇+反串搞笑",
-      genre:"古风奇幻+现代喜剧",
-      diff_angle:"原版书生×狐妖CP。增量：仙界打工人辞职去人间开烧烤摊。保留古今穿越+反串笑点+AI画面的组合，但叙事角度换成职场吐槽+人间烟火。"
-    },
-    script:{format:"14镜短片(2分钟)",genre:"古风奇幻+现代喜剧",shots:[
-      ["大远景","仙山云海。金色宫殿。仙鹤飞过匾额凌霄殿。弹幕：我叫苏然，修仙三年，考进仙界最牛的公司。"],
-      ["中景","大殿。苏然(22岁鹅蛋脸丹凤眼白衣银冠)跪大殿中央满脸期待。传令仙官：分至御马监，司职天马饲养。苏然笑容冻住。"],
-      ["蒙太奇","四格：被天马蹄踹飞/茶水泼仙尊脸上/吃泡面垫金丹期/悬崖边发呆"],
-      ["中近景","悬崖边。师姐(老王反串，白衣仙裙浓艳妆容)转头——假睫毛3cm口红涂出嘴角。苏然瞳孔地震。图什么？图个自在。挥手摸鱼真经凭空出现。"],
-      ["特写","手捧古书摸鱼真经速成版，金光从书缝渗出。一掌拍在苏然胸口。金光爆闪。"],
-      ["中景","古装苏然站十字路口中间。晚高峰车流。交警吹哨。苏然抱头鼠窜。纸条：春风街8号，找老王。"],
-      ["中景","烧烤摊。老王(汗衫「道法自然」寸头人字拖叼烟)翻着串——和师姐同一张脸但纯男人。天上打三份工，不如地上摆一个摊。你要不要蒜？"],
-      ["特写","苏然咬羊肉串。表情三阶段：试探→咀嚼→眼睛睁大。比蟠桃宴上的菜好吃。"],
-      ["全景","人间众生：加班白领独饮、抱孩子妈妈、外卖小哥蹲路边、大妈摇蒲扇。每个人在自己的灯光下。"],
-      ["中景","深夜马路牙子。两人并肩各拿啤酒。老王举瓶对街灯：逍遥不是飞得多高。是你吃着串喝着酒，身边有人陪你吹牛。"],
-      ["四格","四季流转：春穿串桃花开、夏赶蚊子风扇、秋写对联银杏落叶、冬递姜茶蒸汽。苏然现在是白T恤牛仔裤。"],
-      ["中景","仙界师弟白衣飘飘来访。师兄仙尊说只要你回去御马监副主管给你留着。苏然擦桌子：不了。我在这挺好的。"],
-      ["中景","霓虹招牌「老王烧烤·人间分店」下。老王举手机自拍，苏然咧嘴笑牙上粘孜然粒。定格。字幕：苏然，原天庭三级御马使，现春风街8号老王烧烤摊主。"],
-      ["中景","彩蛋。仙尊坐凌霄殿上面前堆着烧烤外卖盒。打开深吸一口气。明天的外卖也点这家。二维码弹出：神仙专享·满一百减二十。"]
-    ]},
-    cinema:{mode:"真人写实",chars:[
-      {name:"苏然",face:"偏长鹅蛋脸/下巴略尖/单眼皮丹凤眼/眼裂偏长/瞳孔深棕/鼻直鼻头圆/冷白皮偏黄/额头鼻翼轻微毛孔/右颊浅酒窝",feature:"175cm清瘦锁骨明显微驼/古装黑高马尾+银冠(划痕)+碎刘海/现代黑短发自然",costume:"古装白交领棉麻长袍(领口微皱袖口磨损)+浅灰布腰带+黑布靴(鞋底磨损)+左红绳手链。现代白圆领棉T恤(领口变形)+浅蓝直筒牛仔裤(膝褪色)+帆布鞋(刷不干净的白色)"},
-      {name:"老王/师姐",face:"方正国字脸/下颌宽/单眼皮小眼/鼻梁偏塌鼻翼宽/嘴唇偏厚/小麦红皮/脸颊鼻头红血丝/鱼尾纹深/川字纹/左眉横向断疤",feature:"172cm/80kg肩宽背厚肚微凸/男装寸头5mm黑掺白/女装黑长假发中分贴头皮",costume:"男装白棉汗衫「道法自然」(洗薄领口松垮)+黑短裤毛边+人字拖右脚磨平+中指老银戒指(内侧刻慧字)+脖白毛巾+裂表蒙机械表+叼烟。女装白纱交领仙裙(静电可见)+百褶长裙拖地沾灰+浓艳妆容(粉底白三色号腮红错位眉不对称假睫毛左右不一致口红涂出唇角)"}
-    ],sample_prompt:"Photorealistic live-action. Night Chinese street food. Same middle-aged actor(buzz cut, white tank top「道法自然」faded red, shorts, worn flip-flops, cigarette, old silver ring) behind grill flipping skewers. Same young actor(oval face, phoenix eyes, white ancient robe) entering confused. Warm amber bulb above, red charcoal glow. String lights bokeh. Shot on 50mm f/2.0. --no CGI airbrushed"},
-    image:{tool:"即梦 S2.0 Pro",seed:"888888",steps:30,char:"苏然(鹅蛋脸/丹凤眼/白袍/红绳)+老王(国字脸/寸头/汗衫/叼烟银戒指)+女装师姐(假发/浓妆错位)"},
-    video:{tool:"可灵 3.0",motion:"低档。s04固定(表情驱动)/s06微抖(穿越)/s08极慢推(第一口)"},
-    editing:{rhythm:"0-6s钩子→6-20s入职→20-35s蒙太奇→35-50s师姐暴击→50-70s穿越→70-100s烟火→100-120s出师"},
-    sound:{bgm:"古风庄严→s04切卡祖笛→人间温暖吉他口哨",sfx:"仙鹤/马啼/茶水泼/刹车尖叫/炭火滋啦/酒瓶碰杯/快门"},
-    publish:{title:"修仙三年考上仙界，上班第一天分去铲屎",tags:"#短剧 #搞笑 #古风 #逍遥仙二创 #打工人",time:"18:00"}
-  }
+var DATA = {
+kuaizi:[
+  {stage:'🔍 热点发现', html:'<b style="color:#a5b4fc">古风反串搞笑</b><br><br>📰 6月15日筷子兄弟出道二十周年发布《逍遥仙》MV。肖央变外卖员抢婚，王太利反串百花仙子。AI生成画面魔性辣眼。<br><br>🎯 情绪：猎奇→破防大笑→魔性上头→鼻酸感动<br>💡 增量：原4分钟MV→1分钟聚焦抢婚瞬间'},
+  {stage:'✍️ 编剧(12镜)', html:'<b>12镜 · 1分钟 · 古风反串搞笑</b><br>1.大远景 仙山云海金色宫殿<br>2.中景 百花仙子闺房。王太利凤冠霞帔偷看<br>3.中景 山下。肖央黄美团外卖服看请帖拧油门<br>4.远景 电动车冲上云端身后尾气<br>5.中景 龙王三太子驾到金光闪耀<br>6.近景 司仪嘴张开三秒：肖央？外卖服？<br>7.<span style="color:#a855f7">⭐核心</span> 肖央打开保温箱炒饭递筷子：趁热。王太利掀盖头浓妆斑驳跨上电动车<br>8.特写 王太利抱肖央腰霞帔飘红<br>9.远景 电动车穿破祥云<br>10.近景 龙太子：这仙子是不是有点秃<br>11.大特写 司仪搜辞职模板<br>12.远景 二十周年字幕收束'},
+  {stage:'🎬 画面指令', html:'<b style="color:#a5b4fc">真人写实模式</b><br><br><b>肖央</b>: 圆偏方脸/单眼皮小眼/黑框眼镜(镜片划痕)/黄美团外卖服(拉链头回形针)/左食指旧疤<br><b>王太利</b>: 偏长国字脸/更小眼/嘴唇薄地包天。<br>女装: 凤冠霞帔+浓艳烟熏妆+假睫毛左3cm右2cm+口红涂出嘴角3mm<br><br>⭐ 核心镜Prompt: <pre>Photorealistic live-action. Wedding altar. 肖央(round face, small monolid eyes, scratched glasses, yellow Meituan uniform) opens delivery box, fried rice steaming. Hands chopsticks to 王太利(long square face, red bridal robe, smeared makeup). Shot on ARRI Alexa 50mm f/2.0. --no CGI</pre>'},
+  {stage:'🖼️ 生图执行', html:'<b>即梦 S2.0 Pro</b> · Seed:666666 · Steps:30<br><br>双角色定妆照+逐镜参考图+200词角色卡注入<br><span style="color:red">🚨 必须先出角色定妆照再做分镜图</span>'},
+  {stage:'🎥 生视频', html:'<b>可灵 3.0</b><br><br>低档运镜。90%固定(喜剧靠表演推动)。s04横移微抖/s09极慢拉远/s12渐远<br><br>每镜出3段视频，选最好的1段'},
+  {stage:'✂️ 剪辑', html:'<b>时间线</b>: 0-8s大婚→8-20s外卖登场→20-35s抢婚→35-50s司仪辞职→50-60s字幕<br><br>转场: 硬切(80%)+叠化+光闪<br>字幕: 白字黑边底部'},
+  {stage:'🎵 声音', html:'<b>BGM</b>: 古风恢弘→s06卡祖笛滑稽→s07小苹果变奏<br><b>音效</b>: 引擎/掰筷子/打字/笑声<br>s05→s06 BGM骤停切换制造反差'},
+  {stage:'🚀 发布', html:'<b>标题</b>: 他穿着美团外卖服，抢了百花仙子的婚。司仪当场打开仙界HR系统搜辞职模板。<br><br>🏷️ #筷子兄弟 #逍遥仙二创 #AI创作 #搞笑<br>⏰ 18:00首发抖音'}
+],
+zhangxue:[
+  {stage:'🔍 热点发现', html:'<b style="color:#a5b4fc">都市热血逆袭</b><br><br>📰 张雪是凯越机车联合创始人。董事会以1076万回购他35%股份。他带着三个旧部在铁皮厂房重新开始。一年后法国赛道夺冠，张雪机车估值10亿。<br><br>🎯 情绪：被背叛的不甘→从零再来的孤勇→赛道夺冠的释放<br>💡 增量：不报复只做事。从头到尾没说前公司一句坏话——只是车更快人更拼'},
+  {stage:'✍️ 编剧(9镜)', html:'<b>9镜 · 2分钟 · 都市热血逆袭</b><br>1.中景 深夜会议室被通知回购股份签字离开<br>2.中景 三个月后铁皮厂房漏雨重新造车<br>3.中景 第137天凌晨4点第一台发动机点燃<br>4.中景 发布会不到一百人：这是我的车试试<br>5.远景 法国赛道雨中超车<br>6.中景 终点冲刺老赵哭成孩子张雪手搭肩<br>7.中景 凯越总部高管沉默股价在跌<br>8.中景 第二年发布会上千人背景墙张雪机车<br>9.POV 驾驶舱前方公路弯道·这一秒你追不上'},
+  {stage:'🎬 画面指令', html:'<b style="color:#a5b4fc">真人写实模式</b><br><br><b>张雪</b>: 方正国字脸/厚黑框眼镜(镜片划痕)/额头横纹/脸颊痘坑/前臂焊接烫伤/手掌粗糙虎口老茧/指甲黑机油渍/左腕卡西欧Gshock表蒙裂纹<br><b>老赵</b>: 圆脸娃娃脸/浓眉大眼/右耳旧疤/褪色红头巾<br><br><pre>Photorealistic. Night boardroom. 38yo man(square jaw, thick scratched glasses, callused hands black under nails, welding burns, cracked Gshock) in denim jacket, signs contract 1076万. Shot on 50mm. --no CGI</pre>'},
+  {stage:'🖼️ 生图执行', html:'<b>即梦 S2.0 Pro</b> · Seed:777777 · Steps:30<br>张雪定妆照(国字脸/黑框眼镜/牛仔夹克)+老赵定妆照(圆脸/红头巾/右耳伤疤)'},
+  {stage:'🎥 生视频', html:'<b>可灵 3.0</b><br>静态为主。s05赛车手持微抖。s06手持静态雨滴镜头边缘'},
+  {stage:'✂️ 剪辑', html:'<b>时间线</b>: 0-15s压抑→15-35s重启→35-55s点燃→55-70s发布→70-95s赛道→95-115s终点→115-120s留白'},
+  {stage:'🎵 声音', html:'<b>BGM</b>: 低沉弦乐→渐强电子节拍→鼓点爆发→钢琴收尾<br><b>音效</b>: 签字笔/焊接火花/发动机点火/雨声/冲线蜂鸣/黑屏静默1秒'},
+  {stage:'🚀 发布', html:'<b>标题</b>: 他值10个亿，但手上还洗不掉机油的黑色<br>🏷️ #短剧 #逆袭 #机车 #张雪机车 #热血<br>⏰ 18:00首发'}
+],
+marriage:[
+  {stage:'🔍 热点发现', html:'<b style="color:#a5b4fc">都市情感/婚姻悬疑</b><br><br>📰 虎扑热帖#4 52万热度。老公发现结婚八年的妻子婚前三年的恋情从未告知。帖主没有大吵大闹：\'你从来没有相信过我——你替我做了一个我根本没机会做的选择。\'<br><br>🎯 情绪：被背叛的愤怒→信任崩塌后的空旷感<br>💡 增量：不报复不离婚——留下来但不爱了'},
+  {stage:'✍️ 编剧(9镜)', html:'<b>9镜 · 2分钟 · 都市情感</b><br>1.中景 周六修台灯。手机响：你老婆认识你之前...<br>2.近景 深夜翻她QQ空间照片日期认识前三个月<br>3.中景 清晨厨房。煎蛋。锅铲停了。蛋焦了。<br>4.中景 阳台。她：三年。怕你不要我。他取下眼镜。<br>5.中景 客厅。我不怪以前的事。我怪你从不信我。<br>6.中景 一周后。女儿问：怎么不说话？螺丝拧错方向。<br>7.中景 同床背对背。她碰他背：会原谅我吗？会的。<br>8.远景 公园。拍照。没发朋友圈。锁屏。起身。<br>9.特写 婚纱照褪成黑白。他选择了留下。但爱可以。'},
+  {stage:'🎬 画面指令', html:'<b style="color:#a5b4fc">真人写实模式</b><br><br><b>陈远</b>: 偏长国字脸/细框钛合金老花镜(镜片微划痕)/额头浅抬头纹/嘴角淡色素痣/左手食指螺丝刀旧疤/灰圆领棉T恤领口微松<br><b>她</b>: 瓜子脸/双眼皮大眼/鼻梁两侧淡淡雀斑/粉纯棉家居服/左手朴素婚戒<br><br><pre>Photorealistic. Night bedroom overhead. Two figures back to back, one body width between them. Red alarm clock 2:47AM. Moonlight through curtain. Shot on 35mm, high ISO grain. --no CGI</pre>'},
+  {stage:'🖼️ 生图执行', html:'<b>即梦 S2.0 Pro</b> · Seed:444444 · Steps:30<br>陈远(偏长方脸/细框老花镜/灰T恤)+她(瓜子脸/雀斑/粉睡衣)'},
+  {stage:'🎥 生视频', html:'<b>可灵 3.0</b><br>全程固定极慢推。s05窗边固定。s07俯拍缓慢下降。s08远摄微抖'},
+  {stage:'✂️ 剪辑', html:'<b>时间线</b>: 0-20s平静→20-40s挖掘→40-70s对峙→70-100s坦白→100-115s裂痕→115-120s照片褪色'},
+  {stage:'🎵 声音', html:'<b>BGM</b>: 静默+低音大提琴→钢琴单音→弦乐渐弱至静默<br><b>音效</b>: 螺丝刀/QQ消息/煎蛋滋滋→静默'},
+  {stage:'🚀 发布', html:'<b>标题</b>: 结婚第八年，我才发现她从没对我说过真话<br>🏷️ #短剧 #婚姻 #情感 #真实故事 #人性<br>⏰ 20:00'}
+]
 };
 
-function loadHistory(key) {
-  currentHistory = key;
-  const data = historyData[key];
-  if (!data) return;
-  // Update input field
-  const titles = {kuaizi:'筷子兄弟逍遥仙', zhangxue:'张雪机车', marriage:'八年婚姻谎言', 'nuwa-test':'仙界打工人'};
-  document.getElementById('ideaInput').value = titles[key] || '';
-  // Reset and auto-run
-  resetPipeline();
-  setTimeout(() => startPipeline(), 300);
-}
+// ====== BUILD ======
+var stages = ['热点发现','短剧编剧','画面指令','生图执行','生视频','剪辑节奏','声音设计','发布运营'];
+var emojis = ['🔍','✍️','🎬','🖼️','🎥','✂️','🎵','🚀'];
+var ids = ['hotspot','script','cinema','image','video','editing','sound','publish'];
 
-function updateCurrentOutput(stage, status, output, allDone) {
-  const dot = document.getElementById('dotCurrent');
-  dot.className = 'dot ' + (status === 'running' ? 'active' : 'done');
-  const container = document.getElementById('currentOutput');
-
-  if (allDone) {
-    container.innerHTML = `<div style="text-align:center;padding:20px;">
-      <div style="font-size:3em;">🏆</div><h3 style="color:#4ade80;margin:12px 0;">全链路完成！</h3>
-      <p style="color:#888;">12镜短剧就绪，查看下方【STEP文件】获取分步操作指南</p>
-      <p style="color:#666;font-size:0.82em;margin-top:8px;">项目ID: ${pipelineState.project_id}</p></div>`;
-    return;
-  }
-  if (!stage || !output) return;
-
-  const idx = stages.indexOf(stage) + 1;
-  let html = `<h3>[Stage ${idx}/8] ${stage.emoji} ${stage.label}</h3>`;
-  const s = stage.id;
-
-  // 格式化每站内容
-  if (s === 'hotspot' && output.title) {
-    html += `<div class="tag">${output.genre}</div><br><br>`;
-    html += `<strong>📰 背景</strong><p style="color:#aaa;margin:4px 0;">${output.search_results}</p>`;
-    html += `<strong>🎯 情绪</strong><p style="color:#a5b4fc;">${output.emotion.core} → ${output.emotion.curve}</p>`;
-    html += `<strong>💡 增量</strong><p style="color:#aaa;">${output.diff_angle}</p>`;
-  } else if (s === 'script' && output.shots) {
-    html += `<strong>${output.format} · ${output.genre}</strong><br><br>`;
-    output.shots.forEach((sh,i) => {
-      html += `<div style="margin:6px 0;padding:6px 8px;background:rgba(255,255,255,0.03);border-radius:6px;">
-        <span style="color:#7c3aed;font-size:0.75em;">镜${i+1}${sh[0].includes('⭐')?' ⭐核心':''}</span>
-        <span style="color:#888;font-size:0.75em;margin-left:8px;">${sh[0].replace('⭐','')}</span><br>
-        <span style="color:#bbb;">${sh[1]}</span></div>`;
-    });
-  } else if (s === 'cinema' && output.mode) {
-    html += `<div class="tag">${output.mode}</div><br><br>`;
-    output.chars.forEach(c => {
-      html += `<strong>${c.name}</strong><br><span style="color:#aaa;font-size:0.82em;">${c.face}</span><br>
-        <span style="color:#888;font-size:0.78em;">${c.feature}</span><br>
-        <span style="color:#666;font-size:0.78em;">${c.costume || ''}${c.costume_female ? ' · 女装:'+c.costume_female : ''}</span><br><br>`;
-    });
-    html += `<strong>核心Prompt预览</strong><br><pre style="font-size:0.7em;max-height:120px;">${output.sample_prompt.substring(0,300)}...</pre>`;
-  } else if (s === 'image') {
-    html += `<strong>${output.tool}</strong> · Seed: ${output.seed} · ${output.steps} steps<br><br>
-      <span style="color:#a5b4fc;">${output.char}</span><br>
-      <span style="color:#888;font-size:0.82em;">生成前必须先出角色定妆照做参考图</span>`;
-  } else if (s === 'video') {
-    html += `<strong>${output.tool}</strong> · ${output.motion}<br><br>
-      <span style="color:#888;font-size:0.82em;">每镜出3段视频，选最好的1段。喜剧靠表演推动，不要炫运镜。</span>`;
-  } else if (s === 'editing') {
-    html += `<strong>时间线</strong><p style="color:#a5b4fc;">${output.rhythm}</p>`;
-  } else if (s === 'sound') {
-    html += `<strong>BGM</strong><p style="color:#a5b4fc;">${output.bgm}</p>
-      <strong>音效</strong><p style="color:#aaa;">${output.sfx}</p>`;
-  } else if (s === 'publish') {
-    html += `<strong>标题</strong><p style="color:#a5b4fc;margin:4px 0;">${output.title}</p>
-      <strong>标签</strong><br>${(output.tags||[]).map(t=>`<span class="tag">${t}</span>`).join(' ')}
-      <br><br><span style="color:#888;">发布时间：${output.time}</span>`;
-  } else {
-    html += `<pre>${JSON.stringify(output, null, 2)}</pre>`;
-  }
-
-  if (status === 'running') html += `<div style="margin-top:8px;color:#a855f7;font-size:0.82em;">⏳ 执行中...</div>`;
-  else html += `<div style="margin-top:8px;color:#4ade80;font-size:0.82em;">✅ 完成</div>`;
-  container.innerHTML = html;
-}
-
-function updateJsonOutput() {
-  const container = document.getElementById('jsonOutput');
-  const doneCount = stages.filter(s => pipelineState.stages[s.id]?.status === 'done').length;
-  if (doneCount >= 8) {
-    container.innerHTML = `<h3 style="color:#4ade80;">✅ 全链路完成</h3>
-      <p style="color:#aaa;font-size:0.85em;">以下步骤可逐个执行：</p>
-      <div style="margin:8px 0;padding:8px;background:rgba(255,255,255,0.03);border-radius:6px;">
-        <b>1. 角色定妆照</b><br><span style="color:#888;">📋 打开 <code>steps/03-角色卡.md</code> → 3条Prompt贴即梦 → 出图</span></div>
-      <div style="margin:8px 0;padding:8px;background:rgba(255,255,255,0.03);border-radius:6px;">
-        <b>2. 12镜分镜图</b><br><span style="color:#888;">📋 打开 <code>steps/04-画面指令.md</code> → 逐条贴即梦</span></div>
-      <div style="margin:8px 0;padding:8px;background:rgba(255,255,255,0.03);border-radius:6px;">
-        <b>3. 视频片段</b><br><span style="color:#888;">📋 打开 <code>steps/05-生视频.md</code> → 上传分镜图到可灵</span></div>
-      <div style="margin:8px 0;padding:8px;background:rgba(255,255,255,0.03);border-radius:6px;">
-        <b>4. 剪辑+声音+发布</b><br><span style="color:#888;">📋 steps/06/07/08.md</span></div>`;
-  } else if (doneCount > 0) {
-    container.innerHTML = `<p style="color:#888;">⏳ ${doneCount}/8 阶段完成</p>`;
-  } else {
-    container.innerHTML = `<div class="empty-state"><div class="icon">📋</div><div>启动后这里显示分步操作指南</div></div>`;
+function build() {
+  var c = document.getElementById('stagesContainer');
+  c.innerHTML = '';
+  for (var i = 0; i < stages.length; i++) {
+    if (i > 0) {
+      var conn = document.createElement('div'); conn.className = 'connector';
+      conn.innerHTML = '<div class="line" id="line' + i + '"></div>';
+      c.appendChild(conn);
+    }
+    var div = document.createElement('div'); div.className = 'stage';
+    div.innerHTML = '<div class="node" id="node' + ids[i] + '">' + emojis[i] + '</div><div class="label" id="label' + ids[i] + '">' + stages[i] + '</div>';
+    c.appendChild(div);
   }
 }
+build();
 
-function sleep(ms) {
-  return new Promise(resolve => {
-    const h = setTimeout(resolve, ms);
-    timeoutHandles.push(h);
-  });
-}
+// ====== RUN ======
+var running = false;
 
-function resetPipeline() {
-  timeoutHandles.forEach(clearTimeout);
-  timeoutHandles = [];
-  running = false;
-  currentStage = -1;
-  pipelineState = {};
-  stages.forEach(s => {
-    const node = document.getElementById('node' + s.id);
-    const label = document.getElementById('label' + s.id);
-    if (node) node.className = 'node';
-    if (label) label.className = 'label';
-  });
-  for (let i = 1; i < stages.length; i++) {
-    const line = document.getElementById('line' + i);
-    if (line) line.className = 'line';
+function resetUI() {
+  for (var i = 0; i < stages.length; i++) {
+    var n = document.getElementById('node' + ids[i]); if (n) n.className = 'node';
+    var l = document.getElementById('label' + ids[i]); if (l) l.className = 'label';
+    if (i > 0) { var ln = document.getElementById('line' + i); if (ln) ln.className = 'line'; }
   }
   document.getElementById('progressFill').style.width = '0%';
-  document.getElementById('startBtn').disabled = false;
-  document.getElementById('resetBtn').disabled = true;
-  document.getElementById('currentOutput').innerHTML = '<div class="empty-state"><div class="icon">🐚</div><div>输入你的创意，点击「一键启动」</div></div>';
-  document.getElementById('jsonOutput').innerHTML = '<div class="empty-state"><div class="icon">📦</div><div>项目数据将在此展示</div></div>';
+  document.getElementById('currentOutput').innerHTML = '<span style="color:#999">输入创意，点击「一键启动」</span>';
+  document.getElementById('stepsOutput').innerHTML = '<span style="color:#999">启动完成后显示分步操作</span>';
   document.getElementById('dotCurrent').className = 'dot';
 }
 
-// Init
-buildPipeline();
+function start() {
+  if (running) return;
+  var idea = document.getElementById('ideaInput').value.trim();
+  if (!idea) { alert('请先输入创意'); return; }
+  
+  running = true;
+  document.getElementById('startBtn').disabled = true;
+  resetUI();
+  
+  var data = DATA[currentDemo];
+  if (!data || data.length < 8) { alert('数据未加载'); running = false; return; }
+  
+  var i = 0;
+  dot.className = 'dot running';
+  
+  function next() {
+    if (i >= data.length) {
+      running = false;
+      document.getElementById('startBtn').disabled = false;
+      dot.className = 'dot done';
+      document.getElementById('progressFill').style.width = '100%';
+      document.getElementById('stepsOutput').innerHTML = '<b style="color:#4ade80">✅ 全链路完成</b><br><br>1. 角色定妆照 → 按角色卡去即梦出图<br>2. 12镜分镜图 → 逐条Prompt贴即梦<br>3. 视频片段 → 上传分镜图到可灵<br>4. 剪辑+声音+发布 → 剪映/发布方案复制';
+      document.getElementById('currentOutput').innerHTML = '<div style="text-align:center;font-size:2em">🏆</div><p style="text-align:center;color:#4ade80;font-size:1.2em">全链路完成！</p>';
+      return;
+    }
+    
+    var node = document.getElementById('node' + ids[i]);
+    var label = document.getElementById('label' + ids[i]);
+    if (node) { node.className = 'node running'; }
+    if (label) { label.className = 'label active'; }
+    if (i > 0) { var ln = document.getElementById('line' + i); if (ln) ln.className = 'line running'; }
+    
+    var progress = ((i + 1) / data.length * 100) + '%';
+    document.getElementById('progressFill').style.width = progress;
+    
+    document.getElementById('currentOutput').innerHTML = '<h4 style="color:#a855f7;margin-bottom:8px">' + data[i].stage + '</h4>' + data[i].html + '<p style="color:#4ade80;font-size:0.75em;margin-top:8px">✅ 完成</p>';
+    
+    setTimeout(function() {
+      if (node) node.className = 'node done';
+      if (label) label.className = 'label done';
+      if (i > 0) { var ln = document.getElementById('line' + i); if (ln) ln.className = 'line done'; }
+      i++; next();
+    }, 600);
+  }
+  next();
+}
+
+function loadDemo(key) {
+  if (!key) return;
+  currentDemo = key;
+  var titles = {kuaizi:'筷子兄弟逍遥仙', zhangxue:'张雪机车', marriage:'八年婚姻谎言'};
+  document.getElementById('ideaInput').value = titles[key] || '';
+}
 </script>
 </body>
 </html>
