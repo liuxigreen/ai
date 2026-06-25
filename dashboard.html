@@ -409,7 +409,8 @@ function buildPipeline() {
 
 // ======== Start Pipeline ========
 async function startPipeline() {
-  if (running) return;
+  try {
+  if (running) { console.log('already running'); return; }
   const idea = document.getElementById('ideaInput').value.trim();
   if (!idea) { alert('请先输入你的创意！'); return; }
 
@@ -457,6 +458,11 @@ async function startPipeline() {
   document.getElementById('dotCurrent').className = 'dot done';
   updateJsonOutput();
   updateCurrentOutput(null, 'done', null, true);
+  } catch(e) {
+    document.getElementById('currentOutput').innerHTML = '<div style="color:red;padding:10px;"><strong>出错了：</strong>' + e.message + '</div>';
+    running = false;
+    document.getElementById('startBtn').disabled = false;
+  }
 }
 
 function generateFakeOutput(stage, index, idea) {
